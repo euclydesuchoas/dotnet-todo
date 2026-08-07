@@ -6,12 +6,14 @@ namespace Todo.Api.Endpoints;
 /// </summary>
 /// <remarks>
 /// Para adicionar uma versão: inclua a constante aqui, adicione-a em <see cref="All"/>
-/// e crie o grupo raiz correspondente (ex.: <c>V2EndpointGroup</c>). O registro do
+/// e crie o grupo raiz correspondente (ex.: <c>V3EndpointGroup</c>). O registro do
 /// documento OpenAPI e a entrada no Swagger UI passam a existir automaticamente.
 /// </remarks>
 public static class ApiVersions
 {
     public const string V1 = "v1";
 
-    public static readonly IReadOnlyList<string> All = [V1];
+    public const string V2 = "v2";
+
+    public static readonly IReadOnlyList<string> All = [V1, V2];
 }

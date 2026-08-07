@@ -10,4 +10,9 @@ public static class EndpointNames
     {
         public const string CreateTodo = "CreateTodoV1";
     }
+
+    public static class V2
+    {
+        public const string CreateTodo = "CreateTodoV2";
+    }
 }
