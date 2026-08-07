@@ -72,11 +72,17 @@ public static class DocumentationExtensions
     /// Swagger fica cacheado justamente para <c>{prefixo}</c>, apontar para lá formaria um laço
     /// de redirecionamento. Com a barra final a URL é outra, e o cache não se aplica.
     /// </para>
+    /// <para>
+    /// O <c>ExcludeFromDescription</c> é necessário: sem ele a rota entraria em todos os
+    /// documentos OpenAPI, porque o critério padrão de inclusão aceita qualquer endpoint sem
+    /// group name. É infraestrutura da documentação, e não superfície da API.
+    /// </para>
     /// </remarks>
     private static void MapSwaggerIndexRedirect(WebApplication app)
     {
         app.MapGet(
             $"/{DocumentationOptions.RoutePrefix}/index.html",
-            () => Results.LocalRedirect($"/{DocumentationOptions.RoutePrefix}/"));
+            () => Results.LocalRedirect($"/{DocumentationOptions.RoutePrefix}/"))
+            .ExcludeFromDescription();
     }
 }
