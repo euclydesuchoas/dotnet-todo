@@ -1,17 +1,13 @@
 namespace Todo.Api.Endpoints;
 
 /// <summary>
-/// Origem única dos caminhos de rota.
+/// Origem única dos segmentos de rota, usados pelos grupos ao chamar <c>MapGroup</c>.
 /// </summary>
 /// <remarks>
-/// <see cref="Segments"/> contém os trechos relativos, que são o que os grupos passam
-/// para <c>MapGroup</c>. As constantes de caminho absoluto são compostas a partir desses
-/// mesmos trechos, para quem precisa do path inteiro (header <c>Location</c>, geração de
-/// links). Alterar um segmento propaga para o grupo e para os caminhos absolutos.
-/// <para>
-/// São constantes de compilação: a composição é resolvida pelo compilador, sem custo
-/// em tempo de execução.
-/// </para>
+/// São constantes de compilação. Aqui ficam apenas os trechos relativos: caminhos
+/// absolutos não são montados à mão, e sim gerados a partir da tabela de rotas
+/// (<c>CreatedAtRoute</c> / <c>LinkGenerator</c>), tendo o nome do endpoint como
+/// referência.
 /// </remarks>
 public static class EndpointRoutes
 {
@@ -25,8 +21,4 @@ public static class EndpointRoutes
 
         public const string Todos = "/todos";
     }
-
-    public const string V1Todos = Segments.Api + Segments.V1 + Segments.Todos;
-
-    public const string V2Todos = Segments.Api + Segments.V2 + Segments.Todos;
 }

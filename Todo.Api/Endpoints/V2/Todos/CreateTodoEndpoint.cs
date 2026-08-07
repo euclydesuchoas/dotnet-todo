@@ -13,8 +13,9 @@ public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
             var result = await handler.HandleAsync(request, cancellationToken);
 
             // Diferença em relação à v1: devolve o header Location apontando para o recurso criado.
+            // O caminho é gerado a partir da rota do GET by id, e não montado à mão.
             return result.IsSuccess
-                ? Results.Created($"{EndpointRoutes.V2Todos}/{result.Data}", result)
+                ? Results.CreatedAtRoute(EndpointNames.V2.GetTodoById, new { id = result.Data }, result)
                 : Results.BadRequest(result.Base);
         })
         .WithName(EndpointNames.V2.CreateTodo)

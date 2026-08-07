@@ -54,9 +54,15 @@ Nomes de rota (`WithName`) precisam ser únicos em toda a aplicação, e não ap
 
 ### Caminhos de Rota
 
-Os caminhos vivem em `EndpointRoutes`, como constantes de compilação. `EndpointRoutes.Segments` guarda os trechos relativos, que são o que cada grupo passa para `MapGroup`; as constantes de caminho absoluto (ex.: `EndpointRoutes.V2Todos`) são compostas a partir desses mesmos trechos e servem a quem precisa do path inteiro, como o header `Location`.
+`EndpointRoutes.Segments` guarda os trechos de rota como constantes de compilação, e é o que cada grupo passa para `MapGroup`. Assim um segmento é declarado uma única vez, e alterá-lo reflete em todas as rotas montadas a partir dele.
 
-Assim um segmento é declarado uma vez só: alterar `Segments.Todos` reflete tanto nas rotas registradas quanto nos caminhos absolutos derivados dele.
+Caminhos absolutos não são montados à mão. Quem precisa deles — como o header `Location` — os obtém da própria tabela de rotas, referenciando o endpoint de destino pelo nome:
+
+```csharp
+Results.CreatedAtRoute(EndpointNames.V2.GetTodoById, new { id = result.Data }, result)
+```
+
+A vantagem é que o caminho passa a ser derivado da definição da rota de destino: se ela mudar, o link acompanha sem que o endpoint de criação seja tocado. Note que `CreatedAtRoute` gera uma **URI absoluta** (com esquema e host); para um caminho relativo, use `LinkGenerator.GetPathByName`.
 
 ### Tratamento de Erros
 
