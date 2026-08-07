@@ -1,24 +1,21 @@
-﻿namespace Todo.Api.Endpoints;
+namespace Todo.Api.Endpoints;
 
+/// <summary>
+/// Um nó da árvore de rotas. É o ponto único onde se concentra o prefixo e todo
+/// comportamento comum aos endpoints do grupo (tags, autorização, rate limiting,
+/// CORS, filtros), via <see cref="RouteGroupBuilder"/>.
+/// </summary>
+/// <remarks>
+/// Implementar esta interface diretamente cria um grupo na raiz da aplicação.
+/// Para aninhar dentro de outro grupo, use <see cref="IEndpointGroup{TParent}"/>.
+/// </remarks>
 public interface IEndpointGroup
 {
-    RouteGroupBuilder MapEndpointGroup(IEndpointRouteBuilder app);
-
-    void MapEndpoints(RouteGroupBuilder group, IServiceProvider serviceProvider);
+    RouteGroupBuilder MapGroup(IEndpointRouteBuilder parent);
 }
 
-public interface IEndpointGroup<TSelf> : IEndpointGroup
-    where TSelf : class, IEndpointGroup<TSelf>
-{
-    // CRTP: TSelf permite resolver IEndpoint<TSelf> via DI sem reflection,
-    // pois o tipo concreto do grupo é conhecido em tempo de compilação.
-    void IEndpointGroup.MapEndpoints(RouteGroupBuilder group, IServiceProvider serviceProvider)
-    {
-        var endpoints = serviceProvider.GetServices<IEndpoint<TSelf>>();
-
-        foreach (var endpoint in endpoints)
-        {
-            endpoint.MapEndpoint(group);
-        }
-    }
-}
+/// <summary>
+/// Grupo aninhado em <typeparamref name="TParent"/>, herdando prefixo e metadados dele.
+/// </summary>
+public interface IEndpointGroup<TParent> : IEndpointGroup
+    where TParent : IEndpointGroup;

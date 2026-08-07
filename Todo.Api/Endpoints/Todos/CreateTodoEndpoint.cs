@@ -1,4 +1,4 @@
-﻿using Todo.Application.Abstractions.Messaging;
+using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Results;
 using Todo.Application.Todos.CreateTodo;
 
@@ -6,9 +6,9 @@ namespace Todo.Api.Endpoints.Todos;
 
 public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
 {
-    public void MapEndpoint(IEndpointRouteBuilder app)
+    public RouteHandlerBuilder MapEndpoint(IEndpointRouteBuilder group)
     {
-        app.MapPost("/", async (CreateTodoRequest request, IServiceHandler<CreateTodoRequest, Guid> handler, CancellationToken cancellationToken) =>
+        return group.MapPost("/", async (CreateTodoRequest request, IServiceHandler<CreateTodoRequest, Guid> handler, CancellationToken cancellationToken) =>
         {
             var result = await handler.HandleAsync(request, cancellationToken);
 

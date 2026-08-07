@@ -1,10 +1,10 @@
-﻿namespace Todo.Api.Endpoints.Todos;
+namespace Todo.Api.Endpoints.Todos;
 
-public sealed class TodoEndpointGroup : IEndpointGroup<TodoEndpointGroup>
+public sealed class TodoEndpointGroup : IEndpointGroup<ApiEndpointGroup>
 {
-    public RouteGroupBuilder MapEndpointGroup(IEndpointRouteBuilder app)
+    public RouteGroupBuilder MapGroup(IEndpointRouteBuilder parent)
     {
-        return app.MapGroup("v1/todos")
+        return parent.MapGroup("/v1/todos")
             .WithTags(EndpointTags.Todos);
     }
 }
