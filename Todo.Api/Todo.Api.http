@@ -1,6 +1,51 @@
 @Todo.Api_HostAddress = http://localhost:5170
+@TodoId = 019fda15-5e46-7cb4-a1c6-7a00700d2503
 
-GET {{Todo.Api_HostAddress}}/weatherforecast/
+### Criar tarefa (v1)
+POST {{Todo.Api_HostAddress}}/api/v1/todos
+Content-Type: application/json
+
+{
+  "title": "Escrever a documentação",
+  "description": "Descrever o padrão de endpoints no README",
+  "dueDate": "2027-01-01T00:00:00Z",
+  "isCompleted": false
+}
+
+### Buscar tarefa por id (v1)
+GET {{Todo.Api_HostAddress}}/api/v1/todos/{{TodoId}}
 Accept: application/json
 
-###
+### Criar tarefa (v2) — difere da v1 por devolver o header Location
+POST {{Todo.Api_HostAddress}}/api/v2/todos
+Content-Type: application/json
+
+{
+  "title": "Escrever a documentação",
+  "description": "Descrever o padrão de endpoints no README",
+  "dueDate": "2027-01-01T00:00:00Z",
+  "isCompleted": false
+}
+
+### Buscar tarefa por id (v2)
+GET {{Todo.Api_HostAddress}}/api/v2/todos/{{TodoId}}
+Accept: application/json
+
+### Falha de validação — dueDate no passado
+POST {{Todo.Api_HostAddress}}/api/v1/todos
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "",
+  "dueDate": "2020-01-01T00:00:00Z",
+  "isCompleted": false
+}
+
+### Documento OpenAPI da v1
+GET {{Todo.Api_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+### Documento OpenAPI da v2
+GET {{Todo.Api_HostAddress}}/openapi/v2.json
+Accept: application/json
