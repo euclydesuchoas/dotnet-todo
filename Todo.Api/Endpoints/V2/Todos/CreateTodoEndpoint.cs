@@ -14,7 +14,7 @@ public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
 
             // Diferença em relação à v1: devolve o header Location apontando para o recurso criado.
             return result.IsSuccess
-                ? Results.Created($"/api/{ApiVersions.V2}/todos/{result.Data}", result)
+                ? Results.Created($"{EndpointRoutes.V2Todos}/{result.Data}", result)
                 : Results.BadRequest(result.Base);
         })
         .WithName(EndpointNames.V2.CreateTodo)

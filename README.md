@@ -52,6 +52,12 @@ As versões existentes ficam em `ApiVersions.All`, que é a lista percorrida tan
 
 Nomes de rota (`WithName`) precisam ser únicos em toda a aplicação, e não apenas dentro de uma versão — por isso `EndpointNames` é segregado por versão.
 
+### Caminhos de Rota
+
+Os caminhos vivem em `EndpointRoutes`, como constantes de compilação. `EndpointRoutes.Segments` guarda os trechos relativos, que são o que cada grupo passa para `MapGroup`; as constantes de caminho absoluto (ex.: `EndpointRoutes.V2Todos`) são compostas a partir desses mesmos trechos e servem a quem precisa do path inteiro, como o header `Location`.
+
+Assim um segmento é declarado uma vez só: alterar `Segments.Todos` reflete tanto nas rotas registradas quanto nos caminhos absolutos derivados dele.
+
 ### Tratamento de Erros
 
 Os casos de uso retornam `Result`/`Result<TData>` em vez de lançar exceções para fluxos de erro esperados (validação, não encontrado, conflito, etc.), permitindo que a camada de API decida como traduzir cada tipo de erro em uma resposta HTTP apropriada.

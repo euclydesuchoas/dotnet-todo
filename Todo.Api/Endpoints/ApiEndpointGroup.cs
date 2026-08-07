@@ -7,6 +7,6 @@ public sealed class ApiEndpointGroup : IEndpointGroup
 {
     public RouteGroupBuilder MapGroup(IEndpointRouteBuilder parent)
     {
-        return parent.MapGroup("/api");
+        return parent.MapGroup(EndpointRoutes.Segments.Api);
     }
 }
