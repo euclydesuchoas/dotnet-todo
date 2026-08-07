@@ -8,7 +8,7 @@ public sealed class V1EndpointGroup : IEndpointGroup<ApiEndpointGroup>
 {
     public RouteGroupBuilder MapGroup(IEndpointRouteBuilder parent)
     {
-        return parent.MapGroup(EndpointRoutes.Segments.V1)
+        return parent.MapGroup($"/{ApiVersions.V1}")
             .WithGroupName(ApiVersions.V1);
     }
 }

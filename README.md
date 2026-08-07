@@ -54,7 +54,7 @@ Nomes de rota (`WithName`) precisam ser únicos em toda a aplicação, e não ap
 
 ### Caminhos de Rota
 
-`EndpointRoutes.Segments` guarda os trechos de rota como constantes de compilação, e é o que cada grupo passa para `MapGroup`. Assim um segmento é declarado uma única vez, e alterá-lo reflete em todas as rotas montadas a partir dele.
+Cada grupo declara seu próprio prefixo direto no `MapGroup`, junto de quem o usa. Segmentos não são centralizados em constantes compartilhadas: `/todos` aparecer no grupo da v1 e no da v2 é intencional, já que versões são contratos independentes e precisam poder divergir sem arrastar uma à outra. A exceção é o segmento da versão, que vem de `ApiVersions` porque precisa coincidir com o nome do documento OpenAPI.
 
 Caminhos absolutos não são montados à mão. Quem precisa deles — como o header `Location` — os obtém da própria tabela de rotas, referenciando o endpoint de destino pelo nome:
 

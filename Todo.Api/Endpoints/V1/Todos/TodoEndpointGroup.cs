@@ -4,7 +4,7 @@ public sealed class TodoEndpointGroup : IEndpointGroup<V1EndpointGroup>
 {
     public RouteGroupBuilder MapGroup(IEndpointRouteBuilder parent)
     {
-        return parent.MapGroup(EndpointRoutes.Segments.Todos)
+        return parent.MapGroup("/todos")
             .WithTags(EndpointTags.Todos);
     }
 }
