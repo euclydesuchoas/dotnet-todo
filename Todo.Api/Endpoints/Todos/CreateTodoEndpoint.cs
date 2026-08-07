@@ -16,7 +16,7 @@ public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
                 ? Results.Created((string?)null, result)
                 : Results.BadRequest(result.Base);
         })
-        .WithName("CreateTodo")
+        .WithName(EndpointNames.CreateTodo)
         .Produces<Result<Guid>>(StatusCodes.Status201Created)
         .Produces<Result>(StatusCodes.Status400BadRequest);
     }
