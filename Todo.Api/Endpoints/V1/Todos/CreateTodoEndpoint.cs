@@ -2,7 +2,7 @@ using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Results;
 using Todo.Application.Todos.CreateTodo;
 
-namespace Todo.Api.Endpoints.Todos;
+namespace Todo.Api.Endpoints.V1.Todos;
 
 public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
 {
@@ -16,7 +16,7 @@ public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
                 ? Results.Created((string?)null, result)
                 : Results.BadRequest(result.Base);
         })
-        .WithName(EndpointNames.CreateTodo)
+        .WithName(EndpointNames.V1.CreateTodo)
         .Produces<Result<Guid>>(StatusCodes.Status201Created)
         .Produces<Result>(StatusCodes.Status400BadRequest);
     }

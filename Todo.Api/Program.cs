@@ -18,7 +18,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v1.json", "Todo API");
+        foreach (var version in ApiVersions.All)
+        {
+            options.SwaggerEndpoint($"/openapi/{version}.json", $"Todo API {version}");
+        }
+
         options.DocumentTitle = "Todo API Documentation";
     });
 }
