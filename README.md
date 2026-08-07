@@ -46,9 +46,9 @@ ApiEndpointGroup            /api
     └── TodoEndpointGroup   /todos
 ```
 
-O grupo da versão aplica `WithGroupName`, que associa todos os seus endpoints a um documento OpenAPI de mesmo nome. Como resultado, cada versão é servida separadamente (`/openapi/v1.json`, `/openapi/v2.json`) e aparece no seletor **Select a definition** do Swagger UI, contendo apenas os endpoints daquela versão.
+O grupo da versão aplica `WithGroupName`, que associa todos os seus endpoints a um documento OpenAPI de mesmo nome. Como resultado, cada versão é servida separadamente (`/openapi/v1.json`, `/openapi/v2.json`) e aparece como uma definição distinta na interface de documentação, contendo apenas os endpoints daquela versão.
 
-As versões existentes ficam em `ApiVersions.All`, que é a lista percorrida tanto no registro dos documentos (`AddOpenApi`) quanto na configuração do Swagger UI. Para criar uma v3, basta adicionar a constante à lista e criar o `V3EndpointGroup` correspondente.
+As versões existentes ficam em `ApiVersions.All`, que é a lista percorrida tanto no registro dos documentos (`AddOpenApi`) quanto na configuração da interface de documentação. Para criar uma v3, basta adicionar a constante à lista e criar o `V3EndpointGroup` correspondente.
 
 Nomes de rota (`WithName`) precisam ser únicos em toda a aplicação, e não apenas dentro de uma versão — por isso `EndpointNames` é segregado por versão.
 
@@ -63,6 +63,22 @@ Results.CreatedAtRoute(EndpointNames.V2.GetTodoById, new { id = result.Data }, r
 ```
 
 A vantagem é que o caminho passa a ser derivado da definição da rota de destino: se ela mudar, o link acompanha sem que o endpoint de criação seja tocado. Note que `CreatedAtRoute` gera uma **URI absoluta** (com esquema e host); para um caminho relativo, use `LinkGenerator.GetPathByName`.
+
+### Documentação da API
+
+Qual interface de documentação é exposta — e se alguma é — vem da configuração, não do ambiente:
+
+```jsonc
+// appsettings.json (padrão)
+"Documentation": { "Provider": "None" }
+
+// appsettings.Development.json
+"Documentation": { "Provider": "Swagger" }
+```
+
+Os valores aceitos são `None`, `Swagger` e `Scalar`. Todos servem no mesmo prefixo, `/documentation`: o provider é um detalhe interno, então trocá-lo não deve invalidar links nem bookmarks. O prefixo é a constante `DocumentationOptions.RoutePrefix`, lida pelos dois providers, para que não haja como divergirem.
+
+`None` é o padrão do enum, de modo que a ausência da seção resulte em documentação desligada — inclusive o documento OpenAPI, já que Swagger e Scalar são apenas cascas que o consomem. As opções são validadas com `ValidateOnStart`, então um valor inválido derruba a aplicação no boot com mensagem explícita, em vez de silenciosamente desligar a documentação.
 
 ### Tratamento de Erros
 
@@ -84,7 +100,7 @@ dotnet restore
 dotnet run --project Todo.Api
 ```
 
-Após iniciar, a documentação Swagger estará disponível em `/swagger` (ambiente de desenvolvimento).
+Após iniciar, a documentação estará disponível em `/documentation` (ambiente de desenvolvimento).
 
 ## Como Testar
 

@@ -1,4 +1,5 @@
 using Todo.Api;
+using Todo.Api.Common;
 using Todo.Api.Endpoints;
 using Todo.Application;
 using Todo.Infrastructure;
@@ -6,26 +7,14 @@ using Todo.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddApi()
+    .AddApi(builder.Configuration)
     .AddApplication()
     .AddInfrastructure();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwaggerUI(options =>
-    {
-        foreach (var version in ApiVersions.All)
-        {
-            options.SwaggerEndpoint($"/openapi/{version}.json", $"Todo API {version}");
-        }
-
-        options.DocumentTitle = "Todo API Documentation";
-    });
-}
+app.UseApiDocumentation();
 
 app.UseHttpsRedirection();
 
