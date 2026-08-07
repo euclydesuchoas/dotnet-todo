@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Messaging;
 
@@ -7,10 +8,12 @@ namespace Todo.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services, Assembly? assembly = null)
     {
+        assembly ??= typeof(DependencyInjection).Assembly;
+
         services.Scan(scan => scan
-            .FromAssemblies(typeof(DependencyInjection).Assembly)
+            .FromAssemblies(assembly)
             .AddClasses(classes => classes.AssignableToAny(typeof(IServiceHandler<>), typeof(IServiceHandler<,>)), publicOnly: false)
             .AsImplementedInterfaces()
             .WithScopedLifetime());
@@ -18,7 +21,7 @@ public static class DependencyInjection
         services.TryDecorate(typeof(IServiceHandler<>), typeof(ServiceHandler<>));
         services.TryDecorate(typeof(IServiceHandler<,>), typeof(ServiceHandler<,>));
 
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);
+        services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
         return services;
     }
