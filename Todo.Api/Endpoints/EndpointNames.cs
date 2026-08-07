@@ -9,6 +9,8 @@ public static class EndpointNames
     public static class V1
     {
         public const string CreateTodo = "CreateTodoV1";
+
+        public const string GetTodoById = "GetTodoByIdV1";
     }
 
     public static class V2
