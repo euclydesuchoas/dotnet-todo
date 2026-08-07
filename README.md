@@ -27,12 +27,30 @@ Os endpoints são descobertos e mapeados automaticamente em uma única passada d
 O modelo é uma árvore em que **cada nó declara seu pai pelo argumento de tipo**:
 
 - `IEndpointGroup` — grupo raiz, pendurado direto no app (ex.: `ApiEndpointGroup`, com prefixo `/api`).
-- `IEndpointGroup<TParent>` — grupo aninhado em outro grupo (ex.: `TodoEndpointGroup : IEndpointGroup<ApiEndpointGroup>`).
+- `IEndpointGroup<TParent>` — grupo aninhado em outro grupo (ex.: `V1EndpointGroup : IEndpointGroup<ApiEndpointGroup>`).
 - `IEndpoint<TGroup>` — endpoint pertencente a um grupo.
 
 O `RouteGroupBuilder` devolvido por `MapGroup` é o ponto único onde se concentra tudo que é comum ao grupo — prefixo, tags, autorização, rate limiting, CORS, filtros — e o que é configurado em um grupo cascateia para seus filhos e endpoints.
 
 Grupos e endpoints são instanciados diretamente pelo registrador (construtor público sem parâmetros) e não vão para o container de DI: dependências são recebidas nos parâmetros do delegate da rota, que já respeitam o escopo da requisição. Inconsistências (endpoint sem grupo, grupo inexistente, ciclo na hierarquia) falham no startup com mensagem explícita, em vez de resultarem em rota silenciosamente ausente.
+
+### Versionamento
+
+Cada versão da API tem um grupo raiz próprio, entre o grupo `/api` e os grupos de funcionalidade:
+
+```
+ApiEndpointGroup            /api
+├── V1EndpointGroup         /v1      → documento OpenAPI "v1"
+│   └── TodoEndpointGroup   /todos
+└── V2EndpointGroup         /v2      → documento OpenAPI "v2"
+    └── TodoEndpointGroup   /todos
+```
+
+O grupo da versão aplica `WithGroupName`, que associa todos os seus endpoints a um documento OpenAPI de mesmo nome. Como resultado, cada versão é servida separadamente (`/openapi/v1.json`, `/openapi/v2.json`) e aparece no seletor **Select a definition** do Swagger UI, contendo apenas os endpoints daquela versão.
+
+As versões existentes ficam em `ApiVersions.All`, que é a lista percorrida tanto no registro dos documentos (`AddOpenApi`) quanto na configuração do Swagger UI. Para criar uma v3, basta adicionar a constante à lista e criar o `V3EndpointGroup` correspondente.
+
+Nomes de rota (`WithName`) precisam ser únicos em toda a aplicação, e não apenas dentro de uma versão — por isso `EndpointNames` é segregado por versão.
 
 ### Tratamento de Erros
 
