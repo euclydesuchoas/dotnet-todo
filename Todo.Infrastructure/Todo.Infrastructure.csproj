@@ -7,6 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentMigrator.Runner.Postgres" Version="8.0.1" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="8.0.1" />
+    <PackageReference Include="FluentMigrator.Runner.SqlServer" Version="8.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <!-- Referência explícita apenas para subir a versão que o provider do SQLite traz por
+         transitividade: a 2.1.11 tem vulnerabilidade conhecida (GHSA-2m69-gcr7-jv3q). -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
     <PackageReference Include="Scrutor" Version="7.0.0" />
   </ItemGroup>
 
