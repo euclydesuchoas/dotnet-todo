@@ -1,4 +1,5 @@
 using System.Reflection;
+using Todo.Api.Common.Json;
 using Todo.Api.Common.Options;
 using Todo.Api.Endpoints;
 
@@ -15,6 +16,11 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(DocumentationOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        // Vale para os endpoints minimal API, que usam Microsoft.AspNetCore.Http.Json.JsonOptions —
+        // e não a configuração do MVC.
+        services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.Converters.Add(new UtcDateTimeJsonConverter()));
 
         // Add services to the container.
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
