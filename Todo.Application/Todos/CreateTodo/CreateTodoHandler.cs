@@ -1,14 +1,20 @@
-﻿using Todo.Application.Abstractions.Messaging;
+using Todo.Application.Abstractions.Messaging;
+using Todo.Application.Abstractions.Persistence;
 using Todo.Application.Common.Results;
+using Todo.Domain.Todos;
 
 namespace Todo.Application.Todos.CreateTodo;
 
-internal sealed class CreateTodoHandler : IServiceHandler<CreateTodoRequest, Guid>
+internal sealed class CreateTodoHandler(ITodoRepository todos, IUnitOfWork unitOfWork)
+    : IServiceHandler<CreateTodoRequest, Guid>
 {
-    public Task<Result<Guid>> HandleAsync(CreateTodoRequest _, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> HandleAsync(CreateTodoRequest request, CancellationToken cancellationToken)
     {
-        // TODO: Implement the logic to create a new Todo item based on the request data.
-        var result = Task.FromResult(Result.Success(Guid.CreateVersion7()));
-        return result;
+        var todo = TodoItem.Create(request.Title, request.Description, request.DueDate, request.IsCompleted);
+
+        await todos.AddAsync(todo, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success(todo.Id);
     }
 }

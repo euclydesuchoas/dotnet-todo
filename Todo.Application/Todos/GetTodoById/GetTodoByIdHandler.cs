@@ -1,24 +1,31 @@
 using Todo.Application.Abstractions.Messaging;
+using Todo.Application.Abstractions.Persistence;
 using Todo.Application.Common.Results;
 
 namespace Todo.Application.Todos.GetTodoById;
 
-internal sealed class GetTodoByIdHandler : IServiceHandler<GetTodoByIdRequest, TodoResponse>
+internal sealed class GetTodoByIdHandler(ITodoRepository todos)
+    : IServiceHandler<GetTodoByIdRequest, TodoResponse>
 {
-    public Task<Result<TodoResponse>> HandleAsync(GetTodoByIdRequest request, CancellationToken cancellationToken)
+    public async Task<Result<TodoResponse>> HandleAsync(GetTodoByIdRequest request, CancellationToken cancellationToken)
     {
-        // TODO: Implement the logic to retrieve the Todo item from the store,
-        // returning ResultError.NotFound when it does not exist.
+        var todo = await todos.GetByIdAsync(request.Id, cancellationToken);
+
+        if (todo is null)
+        {
+            return Result.Failure<TodoResponse>(
+                ResultError.NotFound(ResultErrorCodes.NotFound, $"Todo '{request.Id}' was not found."));
+        }
+
         var response = new TodoResponse
         {
-            Id = request.Id,
-            Title = "Todo",
-            Description = string.Empty,
-            DueDate = DateTime.UtcNow,
-            IsCompleted = false,
+            Id = todo.Id,
+            Title = todo.Title,
+            Description = todo.Description,
+            DueDate = todo.DueDate,
+            IsCompleted = todo.IsCompleted,
         };
 
-        var result = Task.FromResult(Result.Success(response));
-        return result;
+        return Result.Success(response);
     }
 }
