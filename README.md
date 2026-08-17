@@ -150,10 +150,14 @@ Ela é aplicada em quatro pontos, cada um cobrindo um caminho que os outros não
 |---|---|
 | `AsUtcDateTime` na migration | O tipo da coluna. No Postgres precisa ser `timestamp with time zone`: os tipos portáteis do FluentMigrator geram `timestamp` sem fuso, e o valor seria deslocado conforme o `TimeZone` da sessão, sem erro nenhum. |
 | `UtcDateTimeJsonConverter` na API | Corpo JSON. Sem ele, `"…-03:00"` chega como `Local` e `"…"` sem offset como `Unspecified`. |
-| `UtcDateTime` em query string e rota | Parâmetros vinculados fora do JSON, que não passam pelo converter acima. |
+| `UtcDateTimeEndpointFilter` na API | Rota e query string, que não passam pelo converter acima. |
 | `UtcDateTimeConverter` no EF Core | Gravação e leitura, por convenção sobre todo `DateTime` do modelo. |
 
 `TodoItem.Create` também normaliza, tornando "`DueDate` é UTC" invariante do tipo para quem constrói a tarefa sem passar por HTTP — teste, seed ou rotina.
+
+Fora do JSON o buraco é menor do que parece: o vínculo do minimal API converte com `DateTimeStyles.AdjustToUniversal` e `CultureInfo.InvariantCulture`, então `?dueFrom=…Z` e `?dueFrom=…-03:00` já chegam em `Utc` — o segundo com o instante convertido. O que sobra é a entrada **sem offset**, que chega `Unspecified` e seguiria adiante como se fosse UTC sem nunca ter sido marcada como tal. É esse caso que o filtro fecha.
+
+O filtro reescreve os argumentos depois do vínculo, o que mantém `DateTime` na assinatura dos endpoints. Um tipo próprio no parâmetro também normalizaria, mas degradaria o OpenAPI: o schema de um tipo customizado sai como `string` pura, sem o `format: date-time` que o `DateTime` produz, e a UI de documentação e os geradores de client passam a tratar a data como texto. Em troca, a garantia deixa de ser do sistema de tipos e passa a depender do registro do filtro no grupo raiz — e ele não alcança `DateTime` aninhado em parâmetro marcado com `[AsParameters]`, porque ali o argumento é a struct que agrupa os filtros, e não a data dentro dela.
 
 No Postgres a coluna é `timestamp with time zone`, mas o fuso **não** é gravado: o tipo são 8 bytes de microssegundos desde a epoch, e o offset que aparece em um `SELECT` é o cliente renderizando no `TimeZone` da sessão. `SET TIME ZONE 'UTC'` mostra o mesmo valor com `+00`.
 
