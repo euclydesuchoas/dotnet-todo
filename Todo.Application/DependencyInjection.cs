@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Messaging;
@@ -22,6 +23,12 @@ public static class DependencyInjection
         services.TryDecorate(typeof(IServiceHandler<,>), typeof(ServiceHandler<,>));
 
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+
+        // O TimeProvider não vem registrado pelo host — nem pelo WebApplication, nem por um
+        // ServiceCollection vazio —, então quem depende dele precisa registrá-lo. Fica aqui, e
+        // não na composição da API, para a camada se sustentar sozinha em teste e em qualquer
+        // outro hospedeiro. TryAdd para o hospedeiro poder trocar o relógio sem editar isto.
+        services.TryAddSingleton(TimeProvider.System);
 
         return services;
     }
