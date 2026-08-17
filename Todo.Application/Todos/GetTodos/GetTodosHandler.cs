@@ -9,8 +9,6 @@ internal sealed class GetTodosHandler(ITodoRepository todos)
 {
     public async Task<Result<IReadOnlyList<TodoResponse>>> HandleAsync(GetTodosRequest request, CancellationToken cancellationToken)
     {
-        // O repositório recebe DateTime: a conversão implícita de UtcDateTime já entrega o
-        // valor normalizado, e a persistência não precisa conhecer o tipo da borda.
         var found = await todos.ListAsync(
             request.Title,
             request.IsCompleted,

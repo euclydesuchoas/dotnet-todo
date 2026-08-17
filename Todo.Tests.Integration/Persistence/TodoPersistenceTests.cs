@@ -9,7 +9,6 @@ using Todo.Application.Todos;
 using Todo.Application.Todos.CreateTodo;
 using Todo.Application.Todos.GetTodoById;
 using Todo.Application.Todos.GetTodos;
-using Todo.Domain.Common;
 using Todo.Infrastructure;
 using Todo.Infrastructure.Persistence;
 
@@ -107,8 +106,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
 
     /// <remarks>
     /// O filtro compara instantes, então o mesmo momento escrito com offsets diferentes tem
-    /// que selecionar exatamente as mesmas tarefas. É o que o <c>UtcDateTime</c> garante no
-    /// vínculo de query string, onde não há <c>System.Text.Json</c> para normalizar.
+    /// que selecionar exatamente as mesmas tarefas. Aqui o request é montado direto, já
+    /// normalizado; o caminho HTTP é coberto pelo filtro de endpoint da API.
     /// </remarks>
     [Fact]
     public async Task Due_date_filter_selects_by_instant_regardless_of_offset()
@@ -127,11 +126,11 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
         }
 
         // As três grafias do mesmo instante: UTC, offset negativo e offset positivo.
-        UtcDateTime[] boundaries =
+        DateTime[] boundaries =
         [
-            new(new DateTime(2027, 3, 10, 12, 0, 0, DateTimeKind.Utc)),
-            new(new DateTimeOffset(2027, 3, 10, 9, 0, 0, TimeSpan.FromHours(-3)).UtcDateTime),
-            new(new DateTimeOffset(2027, 3, 10, 21, 0, 0, TimeSpan.FromHours(9)).UtcDateTime),
+            new DateTime(2027, 3, 10, 12, 0, 0, DateTimeKind.Utc),
+            new DateTimeOffset(2027, 3, 10, 9, 0, 0, TimeSpan.FromHours(-3)).UtcDateTime,
+            new DateTimeOffset(2027, 3, 10, 21, 0, 0, TimeSpan.FromHours(9)).UtcDateTime,
         ];
 
         foreach (var boundary in boundaries)
@@ -178,8 +177,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
         // Intervalo fechado dos dois lados: o limite superior inclui a tarefa que cai nele.
         var inRange = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
             new GetTodosRequest(
-                DueFrom: new UtcDateTime(new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc)),
-                DueTo: new UtcDateTime(new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc))),
+                DueFrom: new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc),
+                DueTo: new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc)),
             cancellationToken);
 
         Assert.Equal("Comprar leite", Assert.Single(inRange.Data!).Title);
@@ -192,8 +191,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
 
         var result = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
             new GetTodosRequest(
-                DueFrom: new UtcDateTime(new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc)),
-                DueTo: new UtcDateTime(new DateTime(2027, 3, 10, 9, 0, 0, DateTimeKind.Utc))),
+                DueFrom: new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc),
+                DueTo: new DateTime(2027, 3, 10, 9, 0, 0, DateTimeKind.Utc)),
             cancellationToken);
 
         Assert.True(result.IsFailure);

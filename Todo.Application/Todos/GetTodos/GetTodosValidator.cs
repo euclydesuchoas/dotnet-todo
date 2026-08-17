@@ -11,8 +11,9 @@ internal sealed class GetTodosValidator : AbstractValidator<GetTodosRequest>
             .MaximumLength(TodoItem.TitleMaxLength)
             .WithMessage($"Title must not exceed {TodoItem.TitleMaxLength} characters.");
 
-        // A comparação é entre dois UtcDateTime, então compara instantes: os dois lados já
-        // foram normalizados no parse, independentemente do offset que o cliente escreveu.
+        // A comparação vale como comparação de instantes porque os dois lados chegam
+        // normalizados da borda, independentemente do offset que o cliente escreveu — um
+        // DateTime sozinho não carrega essa garantia, já que a comparação ignora o Kind.
         // Must, e não GreaterThanOrEqualTo: o FluentValidation exige IComparable no tipo da
         // propriedade, e Nullable<T> não satisfaz restrição de interface.
         RuleFor(x => x.DueTo)
