@@ -161,6 +161,14 @@ O filtro reescreve os argumentos depois do vínculo, o que mantém `DateTime` na
 
 No Postgres a coluna é `timestamp with time zone`, mas o fuso **não** é gravado: o tipo são 8 bytes de microssegundos desde a epoch, e o offset que aparece em um `SELECT` é o cliente renderizando no `TimeZone` da sessão. `SET TIME ZONE 'UTC'` mostra o mesmo valor com `+00`.
 
+### Relógio
+
+Quem precisa saber que horas são pede ao `TimeProvider`, não ao `DateTime.UtcNow`. Hoje há um único ponto assim, a regra "`DueDate` está no futuro" em `CreateTodoValidator`.
+
+O motivo é o limite da regra. Com o relógio de parede, um teste só consegue afirmar algo *perto* do agora — daí margens escolhidas no chute, que são frágeis em máquina carregada e ainda assim não cobrem o caso que mais importa: a regra é `>=`, então o próprio instante do agora tem que passar. Com o relógio injetado o teste declara qual é o agora e afirma o comportamento exatamente nele, e um tick antes dele.
+
+O `TimeProvider` é da biblioteca base desde o .NET 8, e por isso não há interface própria aqui: o `FakeTimeProvider` oficial já serve os testes, e uma abstração caseira abriria mão dele, dos timers e das APIs do framework que aceitam `TimeProvider` por injeção. O host **não** o registra sozinho — nem `WebApplication`, nem um `ServiceCollection` vazio —, então `AddApplication` faz um `TryAddSingleton(TimeProvider.System)`: a camada se sustenta em qualquer hospedeiro, e quem hospeda pode trocar o relógio sem editá-la.
+
 ### Tratamento de Erros
 
 Os casos de uso retornam `Result`/`Result<TData>` em vez de lançar exceções para fluxos de erro esperados (validação, não encontrado, conflito, etc.), permitindo que a camada de API decida como traduzir cada tipo de erro em uma resposta HTTP apropriada.
