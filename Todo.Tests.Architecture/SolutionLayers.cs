@@ -13,6 +13,7 @@ internal static class SolutionLayers
 {
     internal static readonly string[] Ordered =
     [
+        "Todo.Shared",
         "Todo.Domain",
         "Todo.Application",
         "Todo.Infrastructure",

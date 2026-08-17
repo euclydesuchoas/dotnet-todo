@@ -1,4 +1,4 @@
-using Todo.Domain.Common;
+using Todo.Shared.Temporal;
 
 namespace Todo.Tests.Unit.Common;
 

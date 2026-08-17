@@ -1,4 +1,4 @@
-namespace Todo.Domain.Common;
+namespace Todo.Shared.Temporal;
 
 /// <summary>
 /// Normalização de instantes para UTC.
@@ -9,10 +9,11 @@ namespace Todo.Domain.Common;
 /// e compara direto; normalizar lá dentro seria consertar a falha de uma porta no lugar errado,
 /// e obrigaria toda regra nova a lembrar disso.
 ///
-/// Mora no projeto mais interno porque as duas portas precisam da mesma regra sem que uma
-/// dependa da outra, e o domínio é o único que ambas enxergam. Não é regra de negócio, e sim
-/// política de fuso do projeto, num lugar que todos alcançam — se a solução ganhar um projeto
-/// compartilhado próprio, o endereço natural passa a ser ele.
+/// Mora no <c>Todo.Shared</c> porque não pertence a nenhuma camada: não é regra de negócio, não
+/// orquestra caso de uso e não é detalhe de um provider. É política do projeto sobre como
+/// interpretar uma data que chegou sem fuso — decisão de fronteira, usada por bordas que não se
+/// enxergam. Ficou no domínio por um tempo só porque era o projeto que todas alcançavam, o que
+/// é razão de visibilidade, não de propósito.
 /// </remarks>
 public static class UtcDateTime
 {

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Todo.Application.Todos.GetTodos;
 using Todo.Domain.Todos;
+using Todo.Shared.Temporal;
 
 namespace Todo.Tests.Architecture;
 
@@ -24,7 +25,12 @@ public sealed class TechnologyIsolationTests
         "FluentMigrator",
     ];
 
-    public static TheoryData<string> InnerLayers => ["Todo.Domain", "Todo.Application"];
+    /// <remarks>
+    /// O <c>Todo.Shared</c> entra na lista porque é o candidato natural a virar depósito: como
+    /// todos o alcançam, é para lá que um utilitário transversal vai por conveniência. Ele
+    /// carrega política do projeto, não tecnologia de borda.
+    /// </remarks>
+    public static TheoryData<string> InnerLayers => ["Todo.Shared", "Todo.Domain", "Todo.Application"];
 
     [Theory]
     [MemberData(nameof(InnerLayers))]
@@ -42,15 +48,19 @@ public sealed class TechnologyIsolationTests
             $"{layer} referencia tecnologia de borda: {string.Join(", ", forbidden)}.");
     }
 
+    public static TheoryData<string> LayersWithoutPackages => ["Todo.Shared", "Todo.Domain"];
+
     /// <remarks>
-    /// O domínio não tem pacote nenhum no <c>.csproj</c>, e o teste registra isso: tudo que ele
-    /// referencia vem da biblioteca base. As regras de negócio não dependem de escolha de
-    /// biblioteca, então a primeira que entrar deve ser uma decisão consciente.
+    /// Os dois projetos da base não têm pacote nenhum no <c>.csproj</c>, e o teste registra
+    /// isso: tudo que referenciam vem da biblioteca base. Nem regra de negócio nem política de
+    /// fronteira dependem de escolha de biblioteca, então a primeira que entrar deve ser uma
+    /// decisão consciente — e não o efeito colateral de alguém precisar de um utilitário.
     /// </remarks>
-    [Fact]
-    public void Domain_only_depends_on_the_base_library()
+    [Theory]
+    [MemberData(nameof(LayersWithoutPackages))]
+    public void Base_layer_only_depends_on_the_base_library(string layer)
     {
-        var external = ReferencesOf("Todo.Domain")
+        var external = ReferencesOf(layer)
             .Where(name => !name.StartsWith("System.", StringComparison.Ordinal))
             .Where(name => name is not ("System" or "mscorlib" or "netstandard"))
             .Order()
@@ -58,13 +68,14 @@ public sealed class TechnologyIsolationTests
 
         Assert.True(
             external.Length == 0,
-            $"Todo.Domain passou a depender de: {string.Join(", ", external)}.");
+            $"{layer} passou a depender de: {string.Join(", ", external)}.");
     }
 
     private static IEnumerable<string> ReferencesOf(string layer)
     {
         var assembly = layer switch
         {
+            "Todo.Shared" => typeof(UtcDateTime).Assembly,
             "Todo.Domain" => typeof(TodoItem).Assembly,
             "Todo.Application" => typeof(GetTodosRequest).Assembly,
             _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Camada sem assembly mapeada."),

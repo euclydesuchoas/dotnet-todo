@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Todo.Domain.Common;
+using Todo.Shared.Temporal;
 
 namespace Todo.Api.Common.Json;
 

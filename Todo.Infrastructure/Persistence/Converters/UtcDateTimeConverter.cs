@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Todo.Domain.Common;
+using Todo.Shared.Temporal;
 
 namespace Todo.Infrastructure.Persistence.Converters;
 
@@ -23,8 +23,8 @@ namespace Todo.Infrastructure.Persistence.Converters;
 /// Normalizar na borda do mapeamento deixa o mesmo instante entrando e saindo,
 /// independentemente do provider.
 ///
-/// A regra em si mora em <see cref="UtcDateTime.Normalize"/>, no domínio, porque a API e o
-/// próprio domínio precisam dela e não enxergam esta camada.
+/// A regra em si mora em <see cref="UtcDateTime.Normalize"/>, no <c>Todo.Shared</c>, porque a
+/// borda de HTTP precisa exatamente da mesma e não enxerga esta camada.
 ///
 /// Valor com <see cref="DateTimeKind.Unspecified"/> é tratado como UTC, e não como hora local:
 /// é o que chega do JSON sem offset, e assumir o fuso do servidor deslocaria o instante

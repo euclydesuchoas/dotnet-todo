@@ -4,6 +4,7 @@
     <Project Path="Todo.Application/Todo.Application.csproj" Id="10cdeb59-fb0c-42f8-91ae-7f41769447c9" />
     <Project Path="Todo.Domain/Todo.Domain.csproj" Id="f9c43a60-a434-41ab-b1e0-1caf16e1e473" />
     <Project Path="Todo.Infrastructure/Todo.Infrastructure.csproj" Id="4bcc4ad5-2052-4aa9-be62-22dfed6d4cbc" />
+    <Project Path="Todo.Shared/Todo.Shared.csproj" Id="0c7e595f-f010-4d53-a680-ef9a78a9ae32" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="Todo.Tests.Architecture/Todo.Tests.Architecture.csproj" Id="a4eee0b5-d6d6-4414-9060-c74c938bf86f" />

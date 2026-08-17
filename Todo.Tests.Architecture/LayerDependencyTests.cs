@@ -3,6 +3,7 @@ using Todo.Api.Endpoints;
 using Todo.Application.Todos.GetTodos;
 using Todo.Domain.Todos;
 using Todo.Infrastructure.Persistence;
+using Todo.Shared.Temporal;
 
 namespace Todo.Tests.Architecture;
 
@@ -54,14 +55,26 @@ public sealed class LayerDependencyTests
     }
 
     /// <remarks>
-    /// O domínio é o único que não tem referência de projeto nenhuma. Está explícito para que
-    /// a primeira tentativa de apoiá-lo em outra camada apareça como falha, e não como decisão
-    /// silenciosa.
+    /// O domínio não tem referência de projeto nenhuma — nem para o <c>Todo.Shared</c>, que hoje
+    /// ele não usa. Está explícito para que a primeira tentativa de apoiá-lo em outra camada
+    /// apareça como falha, e não como decisão silenciosa. No dia em que o domínio precisar do
+    /// compartilhado de verdade, este teste vira "referencia no máximo o Todo.Shared", e a
+    /// mudança é a decisão consciente que ele existe para forçar.
     /// </remarks>
     [Fact]
     public void Domain_stands_alone()
     {
         Assert.Empty(SolutionLayers.DeclaredReferencesOf("Todo.Domain"));
+    }
+
+    /// <remarks>
+    /// O compartilhado é a base: se ele apontar para qualquer outro projeto, deixa de poder ser
+    /// referenciado por todos sem criar ciclo.
+    /// </remarks>
+    [Fact]
+    public void Shared_is_the_base_and_depends_on_no_project()
+    {
+        Assert.Empty(SolutionLayers.DeclaredReferencesOf("Todo.Shared"));
     }
 
     /// <remarks>
@@ -73,7 +86,7 @@ public sealed class LayerDependencyTests
     public void Reading_the_project_file_actually_finds_the_references()
     {
         Assert.Equal(
-            ["Todo.Application", "Todo.Domain", "Todo.Infrastructure"],
+            ["Todo.Application", "Todo.Domain", "Todo.Infrastructure", "Todo.Shared"],
             SolutionLayers.DeclaredReferencesOf("Todo.Api").Order());
     }
 
@@ -81,6 +94,7 @@ public sealed class LayerDependencyTests
     {
         return layer switch
         {
+            "Todo.Shared" => typeof(UtcDateTime).Assembly,
             "Todo.Domain" => typeof(TodoItem).Assembly,
             "Todo.Application" => typeof(GetTodosRequest).Assembly,
             "Todo.Infrastructure" => typeof(TodoDbContext).Assembly,

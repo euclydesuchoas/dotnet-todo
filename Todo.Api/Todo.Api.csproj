@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Todo.Application\Todo.Application.csproj" />
     <ProjectReference Include="..\Todo.Domain\Todo.Domain.csproj" />
     <ProjectReference Include="..\Todo.Infrastructure\Todo.Infrastructure.csproj" />
+    <ProjectReference Include="..\Todo.Shared\Todo.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
