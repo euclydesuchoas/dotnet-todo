@@ -42,9 +42,5 @@ internal static class MigrationColumnExtensions
             postgres: () => column.AsDateTimeOffset(),
             sqlServer: () => column.AsDateTime2(),
             sqlite: () => column.AsDateTime2());
-        /*return provider.Match(
-            postgres: () => column.AsDateTime(),
-            sqlServer: () => column.AsDateTime(),
-            sqlite: () => column.AsDateTime());*/
     }
 }
