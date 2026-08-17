@@ -142,18 +142,22 @@ A ausência da seção `Database`, um provider inválido ou uma connection strin
 
 O sistema guarda instantes, não horários locais: nenhum fuso é persistido. Um `DateTime` em .NET carrega um `DateTimeKind` que a comparação entre dois valores simplesmente ignora, e cada banco trata o fuso de um jeito — a combinação produz erros que só aparecem quando o servidor não roda em UTC, o que os esconde em desenvolvimento.
 
-A regra de normalização é uma só, `UtcDateTime.Normalize`, no domínio: `Utc` passa, `Local` é convertido, `Unspecified` é assumido como UTC. Assumir o fuso do servidor no último caso faria a mesma requisição gravar instantes diferentes conforme a máquina que hospeda a aplicação.
+A regra de normalização é uma só, `UtcDateTime.Normalize`: `Utc` passa, `Local` é convertido, `Unspecified` é assumido como UTC. Assumir o fuso do servidor no último caso faria a mesma requisição gravar instantes diferentes conforme a máquina que hospeda a aplicação.
 
-Ela é aplicada em quatro pontos, cada um cobrindo um caminho que os outros não alcançam:
+O princípio de onde ela é aplicada é curto: **toda porta normaliza; nada no miolo normaliza.** Porta é onde um `DateTime` cruza a fronteira do sistema — entrada e saída HTTP, gravação e leitura no banco —, e é o único lugar em que o fuso ainda é indefinido. Passado esse ponto, o valor é UTC por contrato: casos de uso, validações e domínio comparam direto.
+
+A alternativa, normalizar por dentro "por garantia", cobra caro no lugar errado. Cada regra nova passa a depender de o autor lembrar da conversão, e quando ele esquece o efeito é uma decisão de negócio silenciosamente errada — não um erro. Preferimos o contrato explícito e as portas cobertas por teste. Um valor não-UTC no miolo é bug de quem o construiu sem passar por porta nenhuma, e o conserto é lá.
+
+As portas são estas:
 
 | Ponto | Cobre |
 |---|---|
 | `AsUtcDateTime` na migration | O tipo da coluna. No Postgres precisa ser `timestamp with time zone`: os tipos portáteis do FluentMigrator geram `timestamp` sem fuso, e o valor seria deslocado conforme o `TimeZone` da sessão, sem erro nenhum. |
 | `UtcDateTimeJsonConverter` na API | Corpo JSON. Sem ele, `"…-03:00"` chega como `Local` e `"…"` sem offset como `Unspecified`. |
 | `UtcDateTimeEndpointFilter` na API | Rota e query string, que não passam pelo converter acima. |
-| `UtcDateTimeConverter` no EF Core | Gravação e leitura, por convenção sobre todo `DateTime` do modelo. |
+| `UtcDateTimeConverter` no EF Core | Gravação e leitura, por convenção sobre todo `DateTime` do modelo. A leitura não é zelo: SQLite e SQL Server descartam o `DateTimeKind` e devolvem `Unspecified`. |
 
-`TodoItem.Create` também normaliza, tornando "`DueDate` é UTC" invariante do tipo para quem constrói a tarefa sem passar por HTTP — teste, seed ou rotina.
+Cada uma tem teste na própria borda — `UtcDateTimeJsonBodyTests` para o corpo, `UtcDateTimeEndpointFilterRegistrationTests` para rota e query, `TodoPersistenceTests` para o banco. É o que sustenta o contrato: se uma porta parar de converter, quebra ali, e não como resultado errado três camadas adiante.
 
 Fora do JSON o buraco é menor do que parece: o vínculo do minimal API converte com `DateTimeStyles.AdjustToUniversal` e `CultureInfo.InvariantCulture`, então `?dueFrom=…Z` e `?dueFrom=…-03:00` já chegam em `Utc` — o segundo com o instante convertido. O que sobra é a entrada **sem offset**, que chega `Unspecified` e seguiria adiante como se fosse UTC sem nunca ter sido marcada como tal. É esse caso que o filtro fecha.
 
