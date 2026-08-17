@@ -12,6 +12,7 @@ A solução é dividida nos seguintes projetos:
 
 | Projeto | Responsabilidade |
 |---|---|
+| `Todo.Shared` | Política transversal que não pertence a nenhuma camada e é usada por bordas que não se enxergam — hoje, a normalização de datas para UTC. Não referencia nenhum outro projeto, e por isso pode ser referenciado por todos. |
 | `Todo.Domain` | Entidades e regras de domínio. |
 | `Todo.Application` | Casos de uso, validações (FluentValidation), abstrações de mensageria (`IRequest`, `IServiceHandler`) e de persistência (`ITodoRepository`, `IUnitOfWork`), e o padrão `Result` para tratamento de sucesso/falha. |
 | `Todo.Infrastructure` | Implementações de infraestrutura: contexto e mapeamentos do EF Core, repositórios, migrations e a escolha do banco. |
