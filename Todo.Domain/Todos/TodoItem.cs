@@ -1,5 +1,3 @@
-using Todo.Domain.Common;
-
 namespace Todo.Domain.Todos;
 
 /// <summary>
@@ -41,15 +39,16 @@ public sealed class TodoItem
     /// do índice da chave primária, em vez de espalhá-las como um UUID v4 faria. Isso
     /// importa nos três bancos suportados, já que em todos a chave primária é a
     /// ordenação física ou o índice mais usado.
+    ///
+    /// <paramref name="dueDate"/> tem que chegar em UTC. Quem normaliza são as portas —
+    /// entrada HTTP e mapeamento de persistência —, e este método é chamado depois delas, em
+    /// fluxo já validado.
     /// </remarks>
     public static TodoItem Create(string title, string description, DateTime dueDate, bool isCompleted)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentNullException.ThrowIfNull(description);
 
-        // Normalizar aqui torna "DueDate é UTC" invariante do tipo, e não promessa de quem
-        // chama. As bordas de HTTP e de persistência já normalizam, mas nenhuma delas cobre
-        // teste, seed ou rotina que construa a tarefa direto.
-        return new TodoItem(Guid.CreateVersion7(), title, description, UtcDateTime.Normalize(dueDate), isCompleted);
+        return new TodoItem(Guid.CreateVersion7(), title, description, dueDate, isCompleted);
     }
 }

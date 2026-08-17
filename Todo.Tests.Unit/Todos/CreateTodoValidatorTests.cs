@@ -79,37 +79,6 @@ public sealed class CreateTodoValidatorTests
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoRequest.DueDate));
     }
 
-    /// <remarks>
-    /// Comparação entre <see cref="DateTime"/> ignora o <see cref="DateTimeKind"/>, então sem a
-    /// normalização da regra um valor <see cref="DateTimeKind.Local"/> seria confrontado com o
-    /// agora em UTC pelo relógio de parede, e datas futuras dentro de uma janela do tamanho do
-    /// offset seriam rejeitadas. Este teste fixa o comportamento correto: o mesmo instante, em
-    /// qualquer <see cref="DateTimeKind"/>, decide igual.
-    ///
-    /// Só tem o que dizer em máquina fora de UTC, porque é o fuso local que cria a divergência.
-    /// O <c>Assert.NotEqual</c> deixa isso explícito em vez de o teste passar em silêncio por
-    /// não ter exercitado nada.
-    /// </remarks>
-    [Fact]
-    public void Same_instant_is_judged_the_same_in_any_kind()
-    {
-        var validator = Validator();
-        var instant = Now.UtcDateTime.AddHours(1);
-        var asLocalTime = instant.ToLocalTime();
-
-        var asUtc = validator.Validate(Request(instant));
-        var asLocal = validator.Validate(Request(asLocalTime));
-
-        Assert.True(asUtc.IsValid);
-        Assert.Equal(asUtc.IsValid, asLocal.IsValid);
-
-        Assert.SkipWhen(
-            TimeZoneInfo.Local.GetUtcOffset(instant) == TimeSpan.Zero,
-            "A máquina roda em UTC: o valor Local é idêntico ao UTC e o teste não distingue nada.");
-
-        Assert.NotEqual(instant, asLocalTime);
-    }
-
     [Fact]
     public void Title_longer_than_the_column_is_rejected()
     {

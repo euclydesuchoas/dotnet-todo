@@ -4,10 +4,15 @@ namespace Todo.Domain.Common;
 /// Normalização de instantes para UTC.
 /// </summary>
 /// <remarks>
-/// Mora no domínio porque a mesma regra é usada em três camadas que não enxergam umas às
-/// outras: a API normaliza o que chega, o domínio normaliza o que recebe por construção e a
-/// persistência normaliza o que grava. Regra duplicada diverge no primeiro ajuste feito em um
-/// lugar só.
+/// Só as portas chamam isto: a API, ao receber e ao devolver, e o mapeamento de persistência,
+/// ao gravar e ao ler. O miolo — casos de uso, validações, domínio — recebe o valor já em UTC
+/// e compara direto; normalizar lá dentro seria consertar a falha de uma porta no lugar errado,
+/// e obrigaria toda regra nova a lembrar disso.
+///
+/// Mora no projeto mais interno porque as duas portas precisam da mesma regra sem que uma
+/// dependa da outra, e o domínio é o único que ambas enxergam. Não é regra de negócio, e sim
+/// política de fuso do projeto, num lugar que todos alcançam — se a solução ganhar um projeto
+/// compartilhado próprio, o endereço natural passa a ser ele.
 /// </remarks>
 public static class UtcDateTime
 {
