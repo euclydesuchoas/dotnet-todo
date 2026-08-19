@@ -102,7 +102,7 @@ A aplicação roda sobre **PostgreSQL**, **SQL Server** ou **SQLite**, escolhido
 // appsettings.Development.json
 "Database": {
   "Provider": "Sqlite",
-  "ConnectionString": "Data Source=todo.db",
+  // ConnectionString vem do user-secrets: ver Como Executar
   "CreateDatabaseOnStartup": true,
   "ApplyMigrationsOnStartup": true
 }
@@ -209,6 +209,22 @@ Os casos de uso retornam `Result`/`Result<TData>` em vez de lançar exceções p
 
 ## Como Executar
 
+A connection string não está no repositório: ela é um segredo, e mora no [Secret Manager](https://learn.microsoft.com/aspnet/core/security/app-secrets) do .NET, fora da árvore de arquivos do projeto. Antes do primeiro boot, defina a sua:
+
+```powershell
+# SQLite, sem servidor nenhum — o arquivo é criado no primeiro boot
+dotnet user-secrets set "Database:ConnectionString" "Data Source=todo.db" --project src/Todo.Api
+
+# ou PostgreSQL
+dotnet user-secrets set "Database:ConnectionString" "User ID=postgres;Password=...;Host=localhost;Port=5432;Database=dotnet-todo;" --project src/Todo.Api
+```
+
+Para SQLite, troque também `Database:Provider` para `Sqlite` em `appsettings.Development.json` — o provider não é segredo e fica versionado.
+
+O Secret Manager só é lido no ambiente de desenvolvimento, e guarda o arquivo em `%APPDATA%\Microsoft\UserSecrets\<UserSecretsId>\secrets.json` (`~/.microsoft/usersecrets/...` no Linux e no macOS). Em produção a mesma chave vem de variável de ambiente (`Database__ConnectionString`) ou do cofre do provedor de nuvem — a aplicação não muda, porque o `IConfiguration` já lê das duas fontes.
+
+Com o segredo definido:
+
 ```powershell
 dotnet restore
 dotnet run --project src/Todo.Api
@@ -216,7 +232,7 @@ dotnet run --project src/Todo.Api
 
 Após iniciar, a documentação estará disponível em `/documentation` (ambiente de desenvolvimento).
 
-Em desenvolvimento o banco padrão é um SQLite em arquivo (`todo.db`), criado e migrado no primeiro boot — nenhum servidor precisa estar instalado. Para rodar sobre PostgreSQL ou SQL Server, basta trocar `Database:Provider` e a connection string.
+Sem a connection string definida, o boot falha com `Database:ConnectionString é obrigatório.` — a validação das opções roda com `ValidateOnStart`, então o erro aparece no boot, e não na primeira requisição.
 
 ## Endpoints
 
