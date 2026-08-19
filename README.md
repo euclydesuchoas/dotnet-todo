@@ -103,9 +103,14 @@ A aplicação roda sobre **PostgreSQL**, **SQL Server** ou **SQLite**, escolhido
 "Database": {
   "Provider": "Sqlite",
   "ConnectionString": "Data Source=todo.db",
+  "CreateDatabaseOnStartup": true,
   "ApplyMigrationsOnStartup": true
 }
 ```
+
+As duas chaves de boot são desligadas por padrão e ligadas só em desenvolvimento. `CreateDatabaseOnStartup` cria o banco vazio quando ele ainda não existe, e `ApplyMigrationsOnStartup` aplica o schema em seguida — nessa ordem, já que a migration precisa de um banco alcançável para gravar a versão aplicada. Em produção ambas ficam desligadas: criar banco exige privilégio de administração (`CREATEDB` no Postgres), e o schema costuma ser aplicado por um passo próprio do deploy, com credenciais próprias.
+
+A criação usa `IRelationalDatabaseCreator.Create`, que cria o banco e nada mais. `EnsureCreated` do EF Core não serve aqui: ele materializaria o modelo do EF por fora do FluentMigrator, sem registrar nada em `version_info`, e o boot seguinte tentaria criar as mesmas tabelas de novo.
 
 São duas ferramentas com responsabilidades separadas: o **EF Core** lê e grava dados, o **FluentMigrator** aplica o schema. A escolha do provider acontece em um único arquivo, `DatabaseProviderExtensions`, uma vez para cada uma delas.
 
