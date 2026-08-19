@@ -21,6 +21,19 @@ A solução é dividida nos seguintes projetos — os de produção em `src/`, o
 | `Todo.Tests.Integration` | Testes de integração. |
 | `Todo.Tests.Architecture` | Testes de arquitetura (garantem convenções e dependências entre camadas). |
 
+### O que entra no `Todo.Shared`
+
+O `Todo.Shared` é o único projeto definido pelo uso, e não por um assunto, e por isso é o que mais corre risco de virar depósito: qualquer utilitário cabe lá se o critério for "é conveniente, e todo mundo alcança". Um tipo entra quando passa nos quatro:
+
+1. Não é regra de negócio, não orquestra caso de uso e não é detalhe de um provider.
+2. Não precisa de pacote nenhum.
+3. Não precisa referenciar nenhum outro projeto da solução.
+4. É usado por pelo menos duas camadas que não se enxergam.
+
+E sai quando deixa de passar: um tipo que ficou com um consumidor só pertence à camada desse consumidor, e volta para lá.
+
+Os quatro são verificados por `Todo.Tests.Architecture` — os dois primeiros em `TechnologyIsolationTests`, o terceiro em `LayerDependencyTests` e o quarto em `SharedContentTests`. Cada assunto mora em sua própria pasta e namespace (`Time`, hoje), de modo que o que não pertence ao projeto fique visível pelo lugar onde teve de ser posto.
+
 ### Padrão de Endpoints
 
 Os endpoints são descobertos e mapeados automaticamente em uma única passada de reflexão no startup (`MapEndpoints`), sem necessidade de mapear rotas manualmente em `Program.cs`.
