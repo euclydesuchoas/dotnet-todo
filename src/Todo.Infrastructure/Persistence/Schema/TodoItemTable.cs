@@ -15,9 +15,9 @@ namespace Todo.Infrastructure.Persistence.Schema;
 /// </remarks>
 internal static class TodoItemTable
 {
-    internal const string Name = "todos";
+    internal const string Name = "todo_items";
 
-    internal const string PrimaryKeyName = "pk_todos";
+    internal const string PrimaryKeyName = "pk_todo_items";
 
     internal static class Columns
     {

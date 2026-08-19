@@ -36,7 +36,7 @@ public sealed class DatabaseProviderRegistrationTests
         var todoItemEntity = dbContext.Model.FindEntityType(typeof(TodoItem));
 
         Assert.NotNull(todoItemEntity);
-        Assert.Equal("todos", todoItemEntity.GetTableName());
+        Assert.Equal("todo_items", todoItemEntity.GetTableName());
 
         var columnNames = todoItemEntity.GetProperties().Select(property => property.GetColumnName());
 

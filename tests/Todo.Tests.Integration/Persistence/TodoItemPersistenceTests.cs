@@ -208,12 +208,12 @@ public sealed class TodoItemPersistenceTests : IAsyncLifetime
 
         var dbContext = scope.ServiceProvider.GetRequiredService<TodoDbContext>();
 
-        var todosSchema = await dbContext.Database
-            .SqlQuery<string>($"SELECT sql AS Value FROM sqlite_master WHERE name = 'todos'")
+        var todoItemsSchema = await dbContext.Database
+            .SqlQuery<string>($"SELECT sql AS Value FROM sqlite_master WHERE name = 'todo_items'")
             .SingleAsync(cancellationToken);
 
         // A migration não nomeia a chave primária: quem nomeia é o MigrationConventionSet.
-        Assert.Contains("""CONSTRAINT "pk_todos" PRIMARY KEY""", todosSchema);
+        Assert.Contains("""CONSTRAINT "pk_todo_items" PRIMARY KEY""", todoItemsSchema);
 
         var versionTableSchema = await dbContext.Database
             .SqlQuery<string>($"SELECT sql AS Value FROM sqlite_master WHERE type = 'table' AND name = 'version_info'")

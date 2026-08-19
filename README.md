@@ -124,18 +124,18 @@ A ramificação está na criação da tabela, e não em um `Alter` posterior, po
 
 #### Nomenclatura das migrations
 
-Cada migration é um arquivo com versão em timestamp e nome descritivo — `202608100001_Create_Table_Todos` —, uma tabela por arquivo. A versão é o que o FluentMigrator ordena e registra; o nome é o que se lê no diretório.
+Cada migration é um arquivo com versão em timestamp e nome descritivo — `202608100001_Create_Table_Todo_Items` —, uma tabela por arquivo. A versão é o que o FluentMigrator ordena e registra; o nome é o que se lê no diretório.
 
 Constraints e índices não são nomeados à mão. `MigrationConventionSet` substitui as convenções do FluentMigrator e gera os nomes a partir da tabela e das colunas:
 
 | Objeto | Formato | Exemplo |
 |---|---|---|
-| Chave primária | `pk_{tabela}` | `pk_todos` |
-| Chave estrangeira | `fk_{tabela}_{colunas}_{tabela_referida}_{colunas}` | `fk_todos_user_id_users_id` |
-| Índice | `ix_{tabela}_{colunas}` | `ix_todos_due_date` |
-| Constraint única | `uc_{tabela}_{colunas}` | `uc_todos_title` |
+| Chave primária | `pk_{tabela}` | `pk_todo_items` |
+| Chave estrangeira | `fk_{tabela}_{colunas}_{tabela_referida}_{colunas}` | `fk_todo_items_user_id_users_id` |
+| Índice | `ix_{tabela}_{colunas}` | `ix_todo_items_due_date` |
+| Constraint única | `uc_{tabela}_{colunas}` | `uc_todo_items_title` |
 
-Sem isso, uma constraint sem nome explícito sai sem nome no SQL e cada banco inventa o seu — `todos_pkey` no Postgres, `PK__todos__3213E83F...` com sufixo aleatório no SQL Server. Um `DROP CONSTRAINT` em migration futura viraria consulta ao catálogo, com nome diferente em cada ambiente.
+Sem isso, uma constraint sem nome explícito sai sem nome no SQL e cada banco inventa o seu — `todo_items_pkey` no Postgres, `PK__todo_ite__3213E83F...` com sufixo aleatório no SQL Server. Um `DROP CONSTRAINT` em migration futura viraria consulta ao catálogo, com nome diferente em cada ambiente.
 
 As convenções são aplicadas em tempo de execução e valem para todas as migrations, inclusive as já escritas — então são congeladas na prática: alterá-las muda o nome que uma migration antiga gera em um banco novo, sem mudar o que ela já gerou nos bancos existentes. Para um nome fora do padrão, basta nomear a constraint na migration, que o nome explícito vence a convenção.
 
@@ -145,7 +145,7 @@ A tabela de controle do próprio FluentMigrator segue a mesma regra, via `Migrat
 
 Duas decisões evitam divergência de comportamento entre os bancos:
 
-- **Nomes físicos em minúsculas** (`todos`, `due_date`), em `TodoItemTable`, compartilhados pelo mapeamento e pela migration. O Postgres rebaixa identificadores não citados para minúsculas, então um nome com maiúsculas só seria alcançável entre aspas.
+- **Nomes físicos em minúsculas** (`todo_items`, `due_date`), em `TodoItemTable`, compartilhados pelo mapeamento e pela migration. O Postgres rebaixa identificadores não citados para minúsculas, então um nome com maiúsculas só seria alcançável entre aspas.
 - **Datas sempre em UTC** — ver a seção abaixo.
 
 A ausência da seção `Database`, um provider inválido ou uma connection string vazia derrubam a aplicação no boot: `DatabaseProviderEnum` não tem membro de valor zero, então não existe padrão para o qual cair por acidente.

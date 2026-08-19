@@ -15,7 +15,7 @@ namespace Todo.Infrastructure.Persistence.Migrations;
 /// Se um limite mudar, o que muda o banco é uma migration nova — nunca esta.
 ///
 /// A chave primária não é nomeada aqui: o nome vem de
-/// <see cref="Conventions.MigrationConventionSet"/>, que produz <c>pk_todos</c>.
+/// <see cref="Conventions.MigrationConventionSet"/>, que produz <c>pk_todo_items</c>.
 ///
 /// A única coluna que se ramifica por banco é a data, porque nenhum tipo do FluentMigrator
 /// serve aos três — ver <see cref="MigrationColumnExtensions.AsUtcDateTime{TNext}"/>. A
@@ -31,12 +31,12 @@ namespace Todo.Infrastructure.Persistence.Migrations;
 /// SQL e a versão é gravada como se tivesse funcionado. O enum é do projeto e é conferido
 /// pelo compilador.
 /// </remarks>
-[Migration(202608100001, "Create table todos")]
-public sealed class _202608100001_Create_Table_Todos(IOptions<DatabaseOptions> databaseOptions) : Migration
+[Migration(202608100001, "Create table todo_items")]
+public sealed class _202608100001_Create_Table_Todo_Items(IOptions<DatabaseOptions> databaseOptions) : Migration
 {
     public override void Up()
     {
-        Create.Table("todos")
+        Create.Table("todo_items")
             .WithColumn("id").AsGuid().NotNullable().PrimaryKey()
             .WithColumn("title").AsString(100).NotNullable()
             .WithColumn("description").AsString(500).NotNullable()
@@ -46,6 +46,6 @@ public sealed class _202608100001_Create_Table_Todos(IOptions<DatabaseOptions> d
 
     public override void Down()
     {
-        Delete.Table("todos");
+        Delete.Table("todo_items");
     }
 }
