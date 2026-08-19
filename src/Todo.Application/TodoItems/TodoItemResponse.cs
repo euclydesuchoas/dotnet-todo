@@ -1,6 +1,6 @@
-﻿namespace Todo.Application.Todos;
+﻿namespace Todo.Application.TodoItems;
 
-public sealed class TodoResponse
+public sealed class TodoItemResponse
 {
     public Guid Id { get; init; }
 

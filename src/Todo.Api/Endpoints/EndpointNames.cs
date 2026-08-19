@@ -8,17 +8,17 @@ public static class EndpointNames
 {
     public static class V1
     {
-        public const string CreateTodo = "CreateTodoV1";
+        public const string CreateTodoItem = "CreateTodoItemV1";
 
-        public const string GetTodoById = "GetTodoByIdV1";
+        public const string GetTodoItemById = "GetTodoItemByIdV1";
 
-        public const string GetTodos = "GetTodosV1";
+        public const string GetTodoItems = "GetTodoItemsV1";
     }
 
     public static class V2
     {
-        public const string CreateTodo = "CreateTodoV2";
+        public const string CreateTodoItem = "CreateTodoItemV2";
 
-        public const string GetTodoById = "GetTodoByIdV2";
+        public const string GetTodoItemById = "GetTodoItemByIdV2";
     }
 }

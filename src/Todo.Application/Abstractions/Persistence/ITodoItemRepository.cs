@@ -1,8 +1,8 @@
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 
 namespace Todo.Application.Abstractions.Persistence;
 
-public interface ITodoRepository
+public interface ITodoItemRepository
 {
     Task<TodoItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
@@ -20,5 +20,5 @@ public interface ITodoRepository
         DateTime? dueTo,
         CancellationToken cancellationToken);
 
-    Task AddAsync(TodoItem todo, CancellationToken cancellationToken);
+    Task AddAsync(TodoItem todoItem, CancellationToken cancellationToken);
 }

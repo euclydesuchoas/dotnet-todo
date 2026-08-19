@@ -14,7 +14,7 @@ A solução é dividida nos seguintes projetos — os de produção em `src/`, o
 |---|---|
 | `Todo.Shared` | Política transversal que não pertence a nenhuma camada e é usada por bordas que não se enxergam — hoje, a normalização de datas para UTC. Não referencia nenhum outro projeto, e por isso pode ser referenciado por todos. |
 | `Todo.Domain` | Entidades e regras de domínio. |
-| `Todo.Application` | Casos de uso, validações (FluentValidation), abstrações de mensageria (`IRequest`, `IServiceHandler`) e de persistência (`ITodoRepository`, `IUnitOfWork`), e o padrão `Result` para tratamento de sucesso/falha. |
+| `Todo.Application` | Casos de uso, validações (FluentValidation), abstrações de mensageria (`IRequest`, `IServiceHandler`) e de persistência (`ITodoItemRepository`, `IUnitOfWork`), e o padrão `Result` para tratamento de sucesso/falha. |
 | `Todo.Infrastructure` | Implementações de infraestrutura: contexto e mapeamentos do EF Core, repositórios, migrations e a escolha do banco. |
 | `Todo.Api` | Camada de apresentação com endpoints Minimal API, organizados em uma árvore de grupos de rotas (`IEndpointGroup`) com descoberta automática no startup. |
 | `Todo.Tests.Unit` | Testes unitários. |
@@ -55,9 +55,9 @@ Cada versão da API tem um grupo raiz próprio, entre o grupo `/api` e os grupos
 ```
 ApiEndpointGroup            /api
 ├── V1EndpointGroup         /v1      → documento OpenAPI "v1"
-│   └── TodoEndpointGroup   /todos
+│   └── TodoItemEndpointGroup   /todo-items
 └── V2EndpointGroup         /v2      → documento OpenAPI "v2"
-    └── TodoEndpointGroup   /todos
+    └── TodoItemEndpointGroup   /todo-items
 ```
 
 O grupo da versão aplica `WithGroupName`, que associa todos os seus endpoints a um documento OpenAPI de mesmo nome. Como resultado, cada versão é servida separadamente (`/openapi/v1.json`, `/openapi/v2.json`) e aparece como uma definição distinta na interface de documentação, contendo apenas os endpoints daquela versão.
@@ -68,12 +68,12 @@ Nomes de rota (`WithName`) precisam ser únicos em toda a aplicação, e não ap
 
 ### Caminhos de Rota
 
-Cada grupo declara seu próprio prefixo direto no `MapGroup`, junto de quem o usa. Segmentos não são centralizados em constantes compartilhadas: `/todos` aparecer no grupo da v1 e no da v2 é intencional, já que versões são contratos independentes e precisam poder divergir sem arrastar uma à outra. A exceção é o segmento da versão, que vem de `ApiVersions` porque precisa coincidir com o nome do documento OpenAPI.
+Cada grupo declara seu próprio prefixo direto no `MapGroup`, junto de quem o usa. Segmentos não são centralizados em constantes compartilhadas: `/todo-items` aparecer no grupo da v1 e no da v2 é intencional, já que versões são contratos independentes e precisam poder divergir sem arrastar uma à outra. A exceção é o segmento da versão, que vem de `ApiVersions` porque precisa coincidir com o nome do documento OpenAPI.
 
 Caminhos absolutos não são montados à mão. Quem precisa deles — como o header `Location` — os obtém da própria tabela de rotas, referenciando o endpoint de destino pelo nome:
 
 ```csharp
-Results.CreatedAtRoute(EndpointNames.V2.GetTodoById, new { id = result.Data }, result)
+Results.CreatedAtRoute(EndpointNames.V2.GetTodoItemById, new { id = result.Data }, result)
 ```
 
 A vantagem é que o caminho passa a ser derivado da definição da rota de destino: se ela mudar, o link acompanha sem que o endpoint de criação seja tocado. Note que `CreatedAtRoute` gera uma **URI absoluta** (com esquema e host); para um caminho relativo, use `LinkGenerator.GetPathByName`.
@@ -171,7 +171,7 @@ As portas são estas:
 | `UtcDateTimeEndpointFilter` na API | Rota e query string, que não passam pelo converter acima. |
 | `UtcDateTimeConverter` no EF Core | Gravação e leitura, por convenção sobre todo `DateTime` do modelo. A leitura não é zelo: SQLite e SQL Server descartam o `DateTimeKind` e devolvem `Unspecified`. |
 
-Cada uma tem teste na própria borda — `UtcDateTimeJsonBodyTests` para o corpo, `UtcDateTimeEndpointFilterRegistrationTests` para rota e query, `TodoPersistenceTests` para o banco. É o que sustenta o contrato: se uma porta parar de converter, quebra ali, e não como resultado errado três camadas adiante.
+Cada uma tem teste na própria borda — `UtcDateTimeJsonBodyTests` para o corpo, `UtcDateTimeEndpointFilterRegistrationTests` para rota e query, `TodoItemPersistenceTests` para o banco. É o que sustenta o contrato: se uma porta parar de converter, quebra ali, e não como resultado errado três camadas adiante.
 
 Fora do JSON o buraco é menor do que parece: o vínculo do minimal API converte com `DateTimeStyles.AdjustToUniversal` e `CultureInfo.InvariantCulture`, então `?dueFrom=…Z` e `?dueFrom=…-03:00` já chegam em `Utc` — o segundo com o instante convertido. O que sobra é a entrada **sem offset**, que chega `Unspecified` e seguiria adiante como se fosse UTC sem nunca ter sido marcada como tal. É esse caso que o filtro fecha.
 
@@ -181,7 +181,7 @@ No Postgres a coluna é `timestamp with time zone`, mas o fuso **não** é grava
 
 ### Relógio
 
-Quem precisa saber que horas são pede ao `TimeProvider`, não ao `DateTime.UtcNow`. Hoje há um único ponto assim, a regra "`DueDate` está no futuro" em `CreateTodoValidator`.
+Quem precisa saber que horas são pede ao `TimeProvider`, não ao `DateTime.UtcNow`. Hoje há um único ponto assim, a regra "`DueDate` está no futuro" em `CreateTodoItemValidator`.
 
 O motivo é o limite da regra. Com o relógio de parede, um teste só consegue afirmar algo *perto* do agora — daí margens escolhidas no chute, que são frágeis em máquina carregada e ainda assim não cobrem o caso que mais importa: a regra é `>=`, então o próprio instante do agora tem que passar. Com o relógio injetado o teste declara qual é o agora e afirma o comportamento exatamente nele, e um tick antes dele.
 
@@ -217,16 +217,16 @@ Em desenvolvimento o banco padrão é um SQLite em arquivo (`todo.db`), criado e
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `POST` | `/api/v1/todos` | Cria uma tarefa. |
-| `GET` | `/api/v1/todos` | Lista tarefas, com filtros opcionais. |
-| `GET` | `/api/v1/todos/{id}` | Busca uma tarefa pelo identificador. |
+| `POST` | `/api/v1/todo-items` | Cria uma tarefa. |
+| `GET` | `/api/v1/todo-items` | Lista tarefas, com filtros opcionais. |
+| `GET` | `/api/v1/todo-items/{id}` | Busca uma tarefa pelo identificador. |
 
 A listagem aceita `title` (contém), `isCompleted`, `dueFrom` e `dueTo`. Filtro ausente não restringe, e o intervalo de vencimento é fechado dos dois lados. Como as datas são comparadas por instante, as três formas abaixo selecionam exatamente as mesmas tarefas:
 
 ```
-GET /api/v1/todos?dueFrom=2027-03-10T12:00:00Z
-GET /api/v1/todos?dueFrom=2027-03-10T09:00:00-03:00
-GET /api/v1/todos?dueFrom=2027-03-10T21:00:00%2B09:00
+GET /api/v1/todo-items?dueFrom=2027-03-10T12:00:00Z
+GET /api/v1/todo-items?dueFrom=2027-03-10T09:00:00-03:00
+GET /api/v1/todo-items?dueFrom=2027-03-10T21:00:00%2B09:00
 ```
 
 ## Como Testar

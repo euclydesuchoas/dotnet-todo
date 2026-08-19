@@ -1,11 +1,11 @@
 using FluentValidation;
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 
-namespace Todo.Application.Todos.GetTodos;
+namespace Todo.Application.TodoItems.GetTodoItems;
 
-internal sealed class GetTodosValidator : AbstractValidator<GetTodosRequest>
+internal sealed class GetTodoItemsValidator : AbstractValidator<GetTodoItemsRequest>
 {
-    public GetTodosValidator()
+    public GetTodoItemsValidator()
     {
         RuleFor(x => x.Title)
             .MaximumLength(TodoItem.TitleMaxLength)

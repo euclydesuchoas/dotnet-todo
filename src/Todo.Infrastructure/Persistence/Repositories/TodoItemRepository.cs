@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Todo.Application.Abstractions.Persistence;
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 
 namespace Todo.Infrastructure.Persistence.Repositories;
 
-internal sealed class TodoRepository(TodoDbContext dbContext) : ITodoRepository
+internal sealed class TodoItemRepository(TodoDbContext dbContext) : ITodoItemRepository
 {
     public Task<TodoItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return dbContext.Todos
+        return dbContext.TodoItems
             .AsNoTracking()
-            .FirstOrDefaultAsync(todo => todo.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(todoItem => todoItem.Id == id, cancellationToken);
     }
 
     public async Task<IReadOnlyList<TodoItem>> ListAsync(
@@ -20,38 +20,38 @@ internal sealed class TodoRepository(TodoDbContext dbContext) : ITodoRepository
         DateTime? dueTo,
         CancellationToken cancellationToken)
     {
-        var query = dbContext.Todos.AsNoTracking();
+        var query = dbContext.TodoItems.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(title))
         {
-            query = query.Where(todo => todo.Title.Contains(title));
+            query = query.Where(todoItem => todoItem.Title.Contains(title));
         }
 
         if (isCompleted.HasValue)
         {
-            query = query.Where(todo => todo.IsCompleted == isCompleted.Value);
+            query = query.Where(todoItem => todoItem.IsCompleted == isCompleted.Value);
         }
 
         if (dueFrom.HasValue)
         {
-            query = query.Where(todo => todo.DueDate >= dueFrom.Value);
+            query = query.Where(todoItem => todoItem.DueDate >= dueFrom.Value);
         }
 
         if (dueTo.HasValue)
         {
-            query = query.Where(todo => todo.DueDate <= dueTo.Value);
+            query = query.Where(todoItem => todoItem.DueDate <= dueTo.Value);
         }
 
         return await query
-            .OrderBy(todo => todo.DueDate)
+            .OrderBy(todoItem => todoItem.DueDate)
             .ToArrayAsync(cancellationToken);
     }
 
-    public Task AddAsync(TodoItem todo, CancellationToken cancellationToken)
+    public Task AddAsync(TodoItem todoItem, CancellationToken cancellationToken)
     {
         // Sem AddAsync do EF Core: ele só é necessário quando o banco gera o valor da
         // chave, e aqui o identificador já vem pronto do domínio.
-        dbContext.Todos.Add(todo);
+        dbContext.TodoItems.Add(todoItem);
 
         return Task.CompletedTask;
     }

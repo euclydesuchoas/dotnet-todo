@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 using Todo.Infrastructure.Persistence.Schema;
 
 namespace Todo.Infrastructure.Persistence.Configurations;

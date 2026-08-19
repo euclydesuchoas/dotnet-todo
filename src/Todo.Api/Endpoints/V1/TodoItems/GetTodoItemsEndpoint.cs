@@ -1,10 +1,10 @@
 using Todo.Api.Common.Http;
 using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Results;
-using Todo.Application.Todos;
-using Todo.Application.Todos.GetTodos;
+using Todo.Application.TodoItems;
+using Todo.Application.TodoItems.GetTodoItems;
 
-namespace Todo.Api.Endpoints.V1.Todos;
+namespace Todo.Api.Endpoints.V1.TodoItems;
 
 /// <summary>
 /// Lista tarefas filtrando por título, conclusão e intervalo de vencimento.
@@ -14,7 +14,7 @@ namespace Todo.Api.Endpoints.V1.Todos;
 /// passa pelo <c>UtcDateTimeJsonConverter</c>, e quem cobre esse caminho é o
 /// <see cref="UtcDateTimeEndpointFilter"/> aplicado no grupo raiz da API.
 /// </remarks>
-public sealed class GetTodosEndpoint : IEndpoint<TodoEndpointGroup>
+public sealed class GetTodoItemsEndpoint : IEndpoint<TodoItemEndpointGroup>
 {
     public RouteHandlerBuilder MapEndpoint(IEndpointRouteBuilder group)
     {
@@ -23,10 +23,10 @@ public sealed class GetTodosEndpoint : IEndpoint<TodoEndpointGroup>
             bool? isCompleted,
             DateTime? dueFrom,
             DateTime? dueTo,
-            IServiceHandler<GetTodosRequest, IReadOnlyList<TodoResponse>> handler,
+            IServiceHandler<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>> handler,
             CancellationToken cancellationToken) =>
         {
-            var request = new GetTodosRequest(title, isCompleted, dueFrom, dueTo);
+            var request = new GetTodoItemsRequest(title, isCompleted, dueFrom, dueTo);
 
             var result = await handler.HandleAsync(request, cancellationToken);
 
@@ -34,8 +34,8 @@ public sealed class GetTodosEndpoint : IEndpoint<TodoEndpointGroup>
                 ? Results.Ok(result)
                 : Results.BadRequest(result.Base);
         })
-        .WithName(EndpointNames.V1.GetTodos)
-        .Produces<Result<IReadOnlyList<TodoResponse>>>(StatusCodes.Status200OK)
+        .WithName(EndpointNames.V1.GetTodoItems)
+        .Produces<Result<IReadOnlyList<TodoItemResponse>>>(StatusCodes.Status200OK)
         .Produces<Result>(StatusCodes.Status400BadRequest);
     }
 }

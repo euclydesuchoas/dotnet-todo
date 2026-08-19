@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Todo.Application;
 using Todo.Application.Abstractions.Persistence;
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 using Todo.Infrastructure;
 using Todo.Infrastructure.Persistence;
 
@@ -33,23 +33,23 @@ public sealed class DatabaseProviderRegistrationTests
         var dbContext = scope.ServiceProvider.GetRequiredService<TodoDbContext>();
 
         // Acessar o modelo força sua construção e validação para o provider corrente.
-        var todoEntity = dbContext.Model.FindEntityType(typeof(TodoItem));
+        var todoItemEntity = dbContext.Model.FindEntityType(typeof(TodoItem));
 
-        Assert.NotNull(todoEntity);
-        Assert.Equal("todos", todoEntity.GetTableName());
+        Assert.NotNull(todoItemEntity);
+        Assert.Equal("todos", todoItemEntity.GetTableName());
 
-        var columnNames = todoEntity.GetProperties().Select(property => property.GetColumnName());
+        var columnNames = todoItemEntity.GetProperties().Select(property => property.GetColumnName());
 
         Assert.Equal(["description", "due_date", "id", "is_completed", "title"], columnNames.Order());
 
         // Tripwire de drift: estes são os tamanhos que a migration 202608100001 gravou no banco.
         // Se o domínio aumentar um limite, o teste quebra aqui — e a correção é uma migration
         // nova de alter, não um ajuste destes números.
-        Assert.Equal(100, todoEntity.FindProperty(nameof(TodoItem.Title))!.GetMaxLength());
-        Assert.Equal(500, todoEntity.FindProperty(nameof(TodoItem.Description))!.GetMaxLength());
+        Assert.Equal(100, todoItemEntity.FindProperty(nameof(TodoItem.Title))!.GetMaxLength());
+        Assert.Equal(500, todoItemEntity.FindProperty(nameof(TodoItem.Description))!.GetMaxLength());
 
         Assert.NotNull(scope.ServiceProvider.GetRequiredService<IMigrationRunner>());
-        Assert.NotNull(scope.ServiceProvider.GetRequiredService<ITodoRepository>());
+        Assert.NotNull(scope.ServiceProvider.GetRequiredService<ITodoItemRepository>());
         Assert.NotNull(scope.ServiceProvider.GetRequiredService<IUnitOfWork>());
     }
 

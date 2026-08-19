@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Todo.Application.Abstractions.Persistence;
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 using Todo.Infrastructure.Persistence.Converters;
 
 namespace Todo.Infrastructure.Persistence;
 
 public sealed class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options), IUnitOfWork
 {
-    public DbSet<TodoItem> Todos => Set<TodoItem>();
+    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

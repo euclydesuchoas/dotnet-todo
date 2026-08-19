@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Xml.Linq;
 using Todo.Api.Endpoints;
-using Todo.Application.Todos.GetTodos;
-using Todo.Domain.Todos;
+using Todo.Application.TodoItems.GetTodoItems;
+using Todo.Domain.TodoItems;
 using Todo.Infrastructure.Persistence;
 using Todo.Shared.Time;
 
@@ -69,7 +69,7 @@ internal static class SolutionLayers
         {
             "Todo.Shared" => typeof(UtcDateTime).Assembly,
             "Todo.Domain" => typeof(TodoItem).Assembly,
-            "Todo.Application" => typeof(GetTodosRequest).Assembly,
+            "Todo.Application" => typeof(GetTodoItemsRequest).Assembly,
             "Todo.Infrastructure" => typeof(TodoDbContext).Assembly,
             "Todo.Api" => typeof(ApiEndpointGroup).Assembly,
             _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Camada sem assembly mapeada."),

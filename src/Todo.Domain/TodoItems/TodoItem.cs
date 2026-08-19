@@ -1,4 +1,4 @@
-namespace Todo.Domain.Todos;
+namespace Todo.Domain.TodoItems;
 
 /// <summary>
 /// Tarefa persistida. É a única fonte dos limites de tamanho dos campos, consumidos

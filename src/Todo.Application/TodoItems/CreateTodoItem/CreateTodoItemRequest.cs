@@ -1,8 +1,8 @@
 ﻿using Todo.Application.Abstractions.Messaging;
 
-namespace Todo.Application.Todos.CreateTodo;
+namespace Todo.Application.TodoItems.CreateTodoItem;
 
-public sealed record CreateTodoRequest(
+public sealed record CreateTodoItemRequest(
     string Title,
     string Description,
     DateTime DueDate,

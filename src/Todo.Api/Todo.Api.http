@@ -1,8 +1,8 @@
 @Todo.Api_HostAddress = http://localhost:5170
-@TodoId = 019fda15-5e46-7cb4-a1c6-7a00700d2503
+@TodoItemId = 019fda15-5e46-7cb4-a1c6-7a00700d2503
 
 ### Criar tarefa (v1)
-POST {{Todo.Api_HostAddress}}/api/v1/todos
+POST {{Todo.Api_HostAddress}}/api/v1/todo-items
 Content-Type: application/json
 
 {
@@ -13,11 +13,11 @@ Content-Type: application/json
 }
 
 ### Buscar tarefa por id (v1)
-GET {{Todo.Api_HostAddress}}/api/v1/todos/{{TodoId}}
+GET {{Todo.Api_HostAddress}}/api/v1/todo-items/{{TodoItemId}}
 Accept: application/json
 
 ### Criar tarefa (v2) — difere da v1 por devolver o header Location
-POST {{Todo.Api_HostAddress}}/api/v2/todos
+POST {{Todo.Api_HostAddress}}/api/v2/todo-items
 Content-Type: application/json
 
 {
@@ -28,11 +28,11 @@ Content-Type: application/json
 }
 
 ### Buscar tarefa por id (v2)
-GET {{Todo.Api_HostAddress}}/api/v2/todos/{{TodoId}}
+GET {{Todo.Api_HostAddress}}/api/v2/todo-items/{{TodoItemId}}
 Accept: application/json
 
 ### Falha de validação — dueDate no passado
-POST {{Todo.Api_HostAddress}}/api/v1/todos
+POST {{Todo.Api_HostAddress}}/api/v1/todo-items
 Content-Type: application/json
 
 {

@@ -2,12 +2,12 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using Todo.Application;
-using Todo.Application.Todos.CreateTodo;
-using Todo.Domain.Todos;
+using Todo.Application.TodoItems.CreateTodoItem;
+using Todo.Domain.TodoItems;
 
-namespace Todo.Tests.Unit.Todos;
+namespace Todo.Tests.Unit.TodoItems;
 
-public sealed class CreateTodoValidatorTests
+public sealed class CreateTodoItemValidatorTests
 {
     /// <summary>
     /// O agora, para todos os testes desta classe.
@@ -19,19 +19,19 @@ public sealed class CreateTodoValidatorTests
     /// </remarks>
     private static readonly DateTimeOffset Now = new(2027, 3, 10, 12, 0, 0, TimeSpan.Zero);
 
-    private static IValidator<CreateTodoRequest> Validator()
+    private static IValidator<CreateTodoItemRequest> Validator()
     {
         return new ServiceCollection()
             .AddApplication()
             // Depois do AddApplication: o registro posterior vence o TryAddSingleton da camada.
             .AddSingleton<TimeProvider>(new FakeTimeProvider(Now))
             .BuildServiceProvider()
-            .GetRequiredService<IValidator<CreateTodoRequest>>();
+            .GetRequiredService<IValidator<CreateTodoItemRequest>>();
     }
 
-    private static CreateTodoRequest Request(DateTime dueDate)
+    private static CreateTodoItemRequest Request(DateTime dueDate)
     {
-        return new CreateTodoRequest("Title", "Description", dueDate, IsCompleted: false);
+        return new CreateTodoItemRequest("Title", "Description", dueDate, IsCompleted: false);
     }
 
     /// <remarks>
@@ -55,7 +55,7 @@ public sealed class CreateTodoValidatorTests
     {
         var result = Validator().Validate(Request(Now.UtcDateTime.AddTicks(-1)));
 
-        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoRequest.DueDate));
+        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoItemRequest.DueDate));
     }
 
     /// <remarks>
@@ -76,13 +76,13 @@ public sealed class CreateTodoValidatorTests
     {
         var result = Validator().Validate(Request(Now.UtcDateTime.AddMinutes(-1)));
 
-        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoRequest.DueDate));
+        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoItemRequest.DueDate));
     }
 
     [Fact]
     public void Title_longer_than_the_column_is_rejected()
     {
-        var request = new CreateTodoRequest(
+        var request = new CreateTodoItemRequest(
             new string('a', TodoItem.TitleMaxLength + 1),
             "Description",
             Now.UtcDateTime.AddDays(1),
@@ -90,6 +90,6 @@ public sealed class CreateTodoValidatorTests
 
         var result = Validator().Validate(request);
 
-        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoRequest.Title));
+        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTodoItemRequest.Title));
     }
 }

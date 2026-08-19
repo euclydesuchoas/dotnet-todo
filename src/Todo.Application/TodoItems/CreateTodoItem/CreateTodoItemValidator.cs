@@ -1,7 +1,7 @@
 using FluentValidation;
-using Todo.Domain.Todos;
+using Todo.Domain.TodoItems;
 
-namespace Todo.Application.Todos.CreateTodo;
+namespace Todo.Application.TodoItems.CreateTodoItem;
 
 /// <remarks>
 /// O relógio entra por injeção, e não por <see cref="DateTime.UtcNow"/>: "está no futuro" é
@@ -9,9 +9,9 @@ namespace Todo.Application.Todos.CreateTodo;
 /// verificada no limite. Com o relógio injetado, o teste diz qual é o agora e afirma o que
 /// acontece exatamente nele.
 /// </remarks>
-internal sealed class CreateTodoValidator : AbstractValidator<CreateTodoRequest>
+internal sealed class CreateTodoItemValidator : AbstractValidator<CreateTodoItemRequest>
 {
-    public CreateTodoValidator(TimeProvider timeProvider)
+    public CreateTodoItemValidator(TimeProvider timeProvider)
     {
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")

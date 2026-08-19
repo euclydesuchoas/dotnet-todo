@@ -1,14 +1,14 @@
 using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Results;
-using Todo.Application.Todos.CreateTodo;
+using Todo.Application.TodoItems.CreateTodoItem;
 
-namespace Todo.Api.Endpoints.V1.Todos;
+namespace Todo.Api.Endpoints.V1.TodoItems;
 
-public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
+public sealed class CreateTodoItemEndpoint : IEndpoint<TodoItemEndpointGroup>
 {
     public RouteHandlerBuilder MapEndpoint(IEndpointRouteBuilder group)
     {
-        return group.MapPost("/", async (CreateTodoRequest request, IServiceHandler<CreateTodoRequest, Guid> handler, CancellationToken cancellationToken) =>
+        return group.MapPost("/", async (CreateTodoItemRequest request, IServiceHandler<CreateTodoItemRequest, Guid> handler, CancellationToken cancellationToken) =>
         {
             var result = await handler.HandleAsync(request, cancellationToken);
 
@@ -16,7 +16,7 @@ public sealed class CreateTodoEndpoint : IEndpoint<TodoEndpointGroup>
                 ? Results.Created((string?)null, result)
                 : Results.BadRequest(result.Base);
         })
-        .WithName(EndpointNames.V1.CreateTodo)
+        .WithName(EndpointNames.V1.CreateTodoItem)
         .Produces<Result<Guid>>(StatusCodes.Status201Created)
         .Produces<Result>(StatusCodes.Status400BadRequest);
     }

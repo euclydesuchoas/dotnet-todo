@@ -5,10 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Todo.Application;
 using Todo.Application.Abstractions.Messaging;
 using Todo.Application.Common.Results;
-using Todo.Application.Todos;
-using Todo.Application.Todos.CreateTodo;
-using Todo.Application.Todos.GetTodoById;
-using Todo.Application.Todos.GetTodos;
+using Todo.Application.TodoItems;
+using Todo.Application.TodoItems.CreateTodoItem;
+using Todo.Application.TodoItems.GetTodoItemById;
+using Todo.Application.TodoItems.GetTodoItems;
 using Todo.Infrastructure;
 using Todo.Infrastructure.Persistence;
 
@@ -23,7 +23,7 @@ namespace Todo.Tests.Integration.Persistence;
 /// verificar de verdade em qualquer máquina. A compatibilidade dos outros dois é coberta
 /// por <see cref="DatabaseProviderRegistrationTests"/>, que valida o mapeamento sem conectar.
 /// </remarks>
-public sealed class TodoPersistenceTests : IAsyncLifetime
+public sealed class TodoItemPersistenceTests : IAsyncLifetime
 {
     private readonly string databasePath = Path.Combine(Path.GetTempPath(), $"todo-tests-{Guid.NewGuid():N}.db");
 
@@ -67,15 +67,15 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
         var cancellationToken = TestContext.Current.CancellationToken;
         var dueDate = DateTime.UtcNow.AddDays(1);
 
-        var request = new CreateTodoRequest("Ler o histórico", "Conferir os commits da semana", dueDate, false);
+        var request = new CreateTodoItemRequest("Ler o histórico", "Conferir os commits da semana", dueDate, false);
 
-        var createResult = await HandleAsync<CreateTodoRequest, Guid>(request, cancellationToken);
+        var createResult = await HandleAsync<CreateTodoItemRequest, Guid>(request, cancellationToken);
 
         Assert.True(createResult.IsSuccess);
         Assert.NotEqual(Guid.Empty, createResult.Data);
 
-        var readResult = await HandleAsync<GetTodoByIdRequest, TodoResponse>(
-            new GetTodoByIdRequest(createResult.Data), cancellationToken);
+        var readResult = await HandleAsync<GetTodoItemByIdRequest, TodoItemResponse>(
+            new GetTodoItemByIdRequest(createResult.Data), cancellationToken);
 
         Assert.True(readResult.IsSuccess);
 
@@ -97,8 +97,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        var readResult = await HandleAsync<GetTodoByIdRequest, TodoResponse>(
-            new GetTodoByIdRequest(Guid.CreateVersion7()), cancellationToken);
+        var readResult = await HandleAsync<GetTodoItemByIdRequest, TodoItemResponse>(
+            new GetTodoItemByIdRequest(Guid.CreateVersion7()), cancellationToken);
 
         Assert.True(readResult.IsFailure);
         Assert.Equal(ResultErrorTypeEnum.NotFound, readResult.Error.Type);
@@ -119,8 +119,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
 
         foreach (var dueDate in new[] { early, late })
         {
-            var created = await HandleAsync<CreateTodoRequest, Guid>(
-                new CreateTodoRequest($"Tarefa {dueDate:HH:mm}", "Descrição", dueDate, false), cancellationToken);
+            var created = await HandleAsync<CreateTodoItemRequest, Guid>(
+                new CreateTodoItemRequest($"Tarefa {dueDate:HH:mm}", "Descrição", dueDate, false), cancellationToken);
 
             Assert.True(created.IsSuccess);
         }
@@ -135,8 +135,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
 
         foreach (var boundary in boundaries)
         {
-            var listed = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
-                new GetTodosRequest(DueFrom: boundary), cancellationToken);
+            var listed = await HandleAsync<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>>(
+                new GetTodoItemsRequest(DueFrom: boundary), cancellationToken);
 
             Assert.True(listed.IsSuccess);
 
@@ -151,32 +151,32 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        await HandleAsync<CreateTodoRequest, Guid>(
-            new CreateTodoRequest("Comprar pão", "Padaria", new DateTime(2027, 3, 10, 9, 0, 0, DateTimeKind.Utc), true),
+        await HandleAsync<CreateTodoItemRequest, Guid>(
+            new CreateTodoItemRequest("Comprar pão", "Padaria", new DateTime(2027, 3, 10, 9, 0, 0, DateTimeKind.Utc), true),
             cancellationToken);
 
-        await HandleAsync<CreateTodoRequest, Guid>(
-            new CreateTodoRequest("Comprar leite", "Mercado", new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc), false),
+        await HandleAsync<CreateTodoItemRequest, Guid>(
+            new CreateTodoItemRequest("Comprar leite", "Mercado", new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc), false),
             cancellationToken);
 
-        var all = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
-            new GetTodosRequest(), cancellationToken);
+        var all = await HandleAsync<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>>(
+            new GetTodoItemsRequest(), cancellationToken);
 
         Assert.Equal(2, all.Data!.Count);
 
-        var byTitle = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
-            new GetTodosRequest(Title: "leite"), cancellationToken);
+        var byTitle = await HandleAsync<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>>(
+            new GetTodoItemsRequest(Title: "leite"), cancellationToken);
 
         Assert.Equal("Comprar leite", Assert.Single(byTitle.Data!).Title);
 
-        var completed = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
-            new GetTodosRequest(IsCompleted: true), cancellationToken);
+        var completed = await HandleAsync<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>>(
+            new GetTodoItemsRequest(IsCompleted: true), cancellationToken);
 
         Assert.Equal("Comprar pão", Assert.Single(completed.Data!).Title);
 
         // Intervalo fechado dos dois lados: o limite superior inclui a tarefa que cai nele.
-        var inRange = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
-            new GetTodosRequest(
+        var inRange = await HandleAsync<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>>(
+            new GetTodoItemsRequest(
                 DueFrom: new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc),
                 DueTo: new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc)),
             cancellationToken);
@@ -189,8 +189,8 @@ public sealed class TodoPersistenceTests : IAsyncLifetime
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        var result = await HandleAsync<GetTodosRequest, IReadOnlyList<TodoResponse>>(
-            new GetTodosRequest(
+        var result = await HandleAsync<GetTodoItemsRequest, IReadOnlyList<TodoItemResponse>>(
+            new GetTodoItemsRequest(
                 DueFrom: new DateTime(2027, 3, 11, 9, 0, 0, DateTimeKind.Utc),
                 DueTo: new DateTime(2027, 3, 10, 9, 0, 0, DateTimeKind.Utc)),
             cancellationToken);

@@ -2,5 +2,5 @@
 
 public static class EndpointTags
 {
-    public const string Todos = "Todos";
+    public const string TodoItems = "TodoItems";
 }
