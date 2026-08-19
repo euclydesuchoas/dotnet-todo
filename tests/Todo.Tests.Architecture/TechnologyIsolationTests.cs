@@ -1,7 +1,7 @@
 using System.Reflection;
 using Todo.Application.Todos.GetTodos;
 using Todo.Domain.Todos;
-using Todo.Shared.Temporal;
+using Todo.Shared.Time;
 
 namespace Todo.Tests.Architecture;
 

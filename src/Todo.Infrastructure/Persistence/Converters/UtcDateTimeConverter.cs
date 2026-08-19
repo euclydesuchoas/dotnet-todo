@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Todo.Shared.Temporal;
+using Todo.Shared.Time;
 
 namespace Todo.Infrastructure.Persistence.Converters;
 

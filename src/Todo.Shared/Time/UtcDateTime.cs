@@ -1,4 +1,4 @@
-namespace Todo.Shared.Temporal;
+namespace Todo.Shared.Time;
 
 /// <summary>
 /// Normalização de instantes para UTC.

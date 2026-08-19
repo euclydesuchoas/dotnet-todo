@@ -3,7 +3,7 @@ using Todo.Api.Endpoints;
 using Todo.Application.Todos.GetTodos;
 using Todo.Domain.Todos;
 using Todo.Infrastructure.Persistence;
-using Todo.Shared.Temporal;
+using Todo.Shared.Time;
 
 namespace Todo.Tests.Architecture;
 
