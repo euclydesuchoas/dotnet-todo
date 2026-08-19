@@ -1,8 +1,3 @@
-using System.Reflection;
-using Todo.Application.Todos.GetTodos;
-using Todo.Domain.Todos;
-using Todo.Shared.Time;
-
 namespace Todo.Tests.Architecture;
 
 /// <summary>
@@ -73,14 +68,6 @@ public sealed class TechnologyIsolationTests
 
     private static IEnumerable<string> ReferencesOf(string layer)
     {
-        var assembly = layer switch
-        {
-            "Todo.Shared" => typeof(UtcDateTime).Assembly,
-            "Todo.Domain" => typeof(TodoItem).Assembly,
-            "Todo.Application" => typeof(GetTodosRequest).Assembly,
-            _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Camada sem assembly mapeada."),
-        };
-
-        return assembly.GetReferencedAssemblies().Select(reference => reference.Name!);
+        return SolutionLayers.AssemblyOf(layer).GetReferencedAssemblies().Select(reference => reference.Name!);
     }
 }

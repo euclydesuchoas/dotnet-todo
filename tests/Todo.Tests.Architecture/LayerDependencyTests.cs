@@ -1,10 +1,3 @@
-using System.Reflection;
-using Todo.Api.Endpoints;
-using Todo.Application.Todos.GetTodos;
-using Todo.Domain.Todos;
-using Todo.Infrastructure.Persistence;
-using Todo.Shared.Time;
-
 namespace Todo.Tests.Architecture;
 
 /// <summary>
@@ -42,7 +35,7 @@ public sealed class LayerDependencyTests
     {
         var allowed = SolutionLayers.AllowedReferencesOf(layer);
 
-        var forbidden = AssemblyOf(layer)
+        var forbidden = SolutionLayers.AssemblyOf(layer)
             .GetReferencedAssemblies()
             .Select(reference => reference.Name!)
             .Where(name => SolutionLayers.Ordered.Contains(name) && name != layer && !allowed.Contains(name))
@@ -88,18 +81,5 @@ public sealed class LayerDependencyTests
         Assert.Equal(
             ["Todo.Application", "Todo.Domain", "Todo.Infrastructure", "Todo.Shared"],
             SolutionLayers.DeclaredReferencesOf("Todo.Api").Order());
-    }
-
-    private static Assembly AssemblyOf(string layer)
-    {
-        return layer switch
-        {
-            "Todo.Shared" => typeof(UtcDateTime).Assembly,
-            "Todo.Domain" => typeof(TodoItem).Assembly,
-            "Todo.Application" => typeof(GetTodosRequest).Assembly,
-            "Todo.Infrastructure" => typeof(TodoDbContext).Assembly,
-            "Todo.Api" => typeof(ApiEndpointGroup).Assembly,
-            _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Camada sem assembly mapeada."),
-        };
     }
 }

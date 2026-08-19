@@ -1,4 +1,10 @@
+using System.Reflection;
 using System.Xml.Linq;
+using Todo.Api.Endpoints;
+using Todo.Application.Todos.GetTodos;
+using Todo.Domain.Todos;
+using Todo.Infrastructure.Persistence;
+using Todo.Shared.Time;
 
 namespace Todo.Tests.Architecture;
 
@@ -47,6 +53,27 @@ internal static class SolutionLayers
             .Select(reference => reference.Attribute("Include")!.Value)
             .Select(path => Path.GetFileNameWithoutExtension(path.Replace('\\', Path.DirectorySeparatorChar)))
             .ToHashSet(StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// Assembly compilada da camada.
+    /// </summary>
+    /// <remarks>
+    /// O mapa é explícito, com um tipo âncora por camada, e não uma busca por nome no domínio
+    /// da aplicação: a assembly só aparece lá depois de carregada, e o que dispara a carga é o
+    /// primeiro teste que toca nela — resultado dependente da ordem de execução.
+    /// </remarks>
+    internal static Assembly AssemblyOf(string layer)
+    {
+        return layer switch
+        {
+            "Todo.Shared" => typeof(UtcDateTime).Assembly,
+            "Todo.Domain" => typeof(TodoItem).Assembly,
+            "Todo.Application" => typeof(GetTodosRequest).Assembly,
+            "Todo.Infrastructure" => typeof(TodoDbContext).Assembly,
+            "Todo.Api" => typeof(ApiEndpointGroup).Assembly,
+            _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Camada sem assembly mapeada."),
+        };
     }
 
     /// <summary>
