@@ -8,7 +8,7 @@ O projeto expõe endpoints REST para criação e gerenciamento de tarefas, com v
 
 ## Arquitetura
 
-A solução é dividida nos seguintes projetos:
+A solução é dividida nos seguintes projetos — os de produção em `src/`, os de teste em `tests/`:
 
 | Projeto | Responsabilidade |
 |---|---|
@@ -193,7 +193,7 @@ Os casos de uso retornam `Result`/`Result<TData>` em vez de lançar exceções p
 
 ```powershell
 dotnet restore
-dotnet run --project Todo.Api
+dotnet run --project src/Todo.Api
 ```
 
 Após iniciar, a documentação estará disponível em `/documentation` (ambiente de desenvolvimento).
