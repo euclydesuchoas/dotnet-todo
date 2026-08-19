@@ -11,6 +11,8 @@ namespace Todo.Tests.Architecture;
 /// </remarks>
 internal static class SolutionLayers
 {
+    private const string SolutionFileName = "Todo.slnx";
+
     internal static readonly string[] Ordered =
     [
         "Todo.Shared",
@@ -38,7 +40,7 @@ internal static class SolutionLayers
     /// </remarks>
     internal static IReadOnlySet<string> DeclaredReferencesOf(string layer)
     {
-        var project = XDocument.Load(Path.Combine(Root.FullName, layer, $"{layer}.csproj"));
+        var project = XDocument.Load(ProjectFileOf(layer));
 
         return project
             .Descendants("ProjectReference")
@@ -52,16 +54,45 @@ internal static class SolutionLayers
     /// </summary>
     private static DirectoryInfo Root { get; } = Find();
 
+    /// <summary>
+    /// Caminho do <c>.csproj</c> de cada projeto, relativo à raiz, como a solução o declara.
+    /// </summary>
+    /// <remarks>
+    /// A solução é quem sabe onde cada projeto mora, então reorganizar as pastas — juntar os
+    /// projetos em <c>src/</c> e <c>tests/</c>, por exemplo — não obriga a mexer aqui.
+    /// </remarks>
+    private static IReadOnlyDictionary<string, string> Declared { get; } = ReadDeclared();
+
     private static DirectoryInfo Find()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
 
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Todo.slnx")))
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, SolutionFileName)))
         {
             directory = directory.Parent;
         }
 
         return directory
-            ?? throw new InvalidOperationException("Todo.slnx não foi encontrado a partir do diretório de saída dos testes.");
+            ?? throw new InvalidOperationException($"{SolutionFileName} não foi encontrado a partir do diretório de saída dos testes.");
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadDeclared()
+    {
+        var solution = XDocument.Load(Path.Combine(Root.FullName, SolutionFileName));
+
+        return solution
+            .Descendants("Project")
+            .Select(project => project.Attribute("Path")!.Value.Replace('\\', Path.DirectorySeparatorChar))
+            .ToDictionary(path => Path.GetFileNameWithoutExtension(path)!, StringComparer.Ordinal);
+    }
+
+    private static string ProjectFileOf(string layer)
+    {
+        if (!Declared.TryGetValue(layer, out var path))
+        {
+            throw new InvalidOperationException($"{layer} não está declarado em {SolutionFileName}.");
+        }
+
+        return Path.Combine(Root.FullName, path);
     }
 }

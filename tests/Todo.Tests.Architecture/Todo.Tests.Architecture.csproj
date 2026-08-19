@@ -12,7 +12,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
@@ -22,11 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Todo.Api\Todo.Api.csproj" />
-    <ProjectReference Include="..\Todo.Application\Todo.Application.csproj" />
-    <ProjectReference Include="..\Todo.Domain\Todo.Domain.csproj" />
-    <ProjectReference Include="..\Todo.Infrastructure\Todo.Infrastructure.csproj" />
-    <ProjectReference Include="..\Todo.Shared\Todo.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Todo.Api\Todo.Api.csproj" />
+    <ProjectReference Include="..\..\src\Todo.Application\Todo.Application.csproj" />
+    <ProjectReference Include="..\..\src\Todo.Domain\Todo.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Todo.Infrastructure\Todo.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Todo.Shared\Todo.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

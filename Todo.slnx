@@ -1,14 +1,14 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="Todo.Api/Todo.Api.csproj" Id="7a7474e1-8ef2-4bea-ad4b-30a84558e9cf" />
-    <Project Path="Todo.Application/Todo.Application.csproj" Id="10cdeb59-fb0c-42f8-91ae-7f41769447c9" />
-    <Project Path="Todo.Domain/Todo.Domain.csproj" Id="f9c43a60-a434-41ab-b1e0-1caf16e1e473" />
-    <Project Path="Todo.Infrastructure/Todo.Infrastructure.csproj" Id="4bcc4ad5-2052-4aa9-be62-22dfed6d4cbc" />
-    <Project Path="Todo.Shared/Todo.Shared.csproj" Id="0c7e595f-f010-4d53-a680-ef9a78a9ae32" />
+    <Project Path="src/Todo.Api/Todo.Api.csproj" Id="7a7474e1-8ef2-4bea-ad4b-30a84558e9cf" />
+    <Project Path="src/Todo.Application/Todo.Application.csproj" Id="10cdeb59-fb0c-42f8-91ae-7f41769447c9" />
+    <Project Path="src/Todo.Domain/Todo.Domain.csproj" Id="f9c43a60-a434-41ab-b1e0-1caf16e1e473" />
+    <Project Path="src/Todo.Infrastructure/Todo.Infrastructure.csproj" Id="4bcc4ad5-2052-4aa9-be62-22dfed6d4cbc" />
+    <Project Path="src/Todo.Shared/Todo.Shared.csproj" Id="0c7e595f-f010-4d53-a680-ef9a78a9ae32" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="Todo.Tests.Architecture/Todo.Tests.Architecture.csproj" Id="a4eee0b5-d6d6-4414-9060-c74c938bf86f" />
-    <Project Path="Todo.Tests.Integration/Todo.Tests.Integration.csproj" Id="7818981e-7fe9-4620-9181-5520b64657ba" />
-    <Project Path="Todo.Tests.Unit/Todo.Tests.Unit.csproj" Id="817ffb80-0273-4167-bbc3-07e2f89e87d9" />
+    <Project Path="tests/Todo.Tests.Architecture/Todo.Tests.Architecture.csproj" Id="a4eee0b5-d6d6-4414-9060-c74c938bf86f" />
+    <Project Path="tests/Todo.Tests.Integration/Todo.Tests.Integration.csproj" Id="7818981e-7fe9-4620-9181-5520b64657ba" />
+    <Project Path="tests/Todo.Tests.Unit/Todo.Tests.Unit.csproj" Id="817ffb80-0273-4167-bbc3-07e2f89e87d9" />
   </Folder>
 </Solution>
