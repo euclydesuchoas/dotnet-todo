@@ -15,7 +15,9 @@ builder.Services
 var app = builder.Build();
 
 // Antes de qualquer requisição ser atendida: subir com o schema desatualizado só adiantaria
-// a falha para o primeiro acesso.
+// a falha para o primeiro acesso. A criação vem antes porque a migration precisa de um banco
+// alcançável para gravar a versão aplicada.
+app.Services.EnsureDatabaseExists();
 app.Services.ApplyDatabaseMigrations();
 
 // Configure the HTTP request pipeline.

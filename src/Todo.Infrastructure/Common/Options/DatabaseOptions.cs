@@ -21,6 +21,18 @@ public sealed class DatabaseOptions
     public string ConnectionString { get; init; } = null!;
 
     /// <summary>
+    /// Cria o banco durante o boot, quando ele ainda não existe.
+    /// </summary>
+    /// <remarks>
+    /// O padrão é desligado, e por motivo mais forte que o de
+    /// <see cref="ApplyMigrationsOnStartup"/>: criar banco é privilégio de administração —
+    /// <c>CREATEDB</c> no Postgres —, e a aplicação não deveria subir com credencial que o
+    /// tenha. Serve a quem está desenvolvendo, para não precisar criar o banco à mão antes
+    /// do primeiro boot.
+    /// </remarks>
+    public bool CreateDatabaseOnStartup { get; init; }
+
+    /// <summary>
     /// Aplica as migrations pendentes durante o boot.
     /// </summary>
     /// <remarks>
