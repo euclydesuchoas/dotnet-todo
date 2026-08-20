@@ -17,10 +17,9 @@ namespace Todo.Shared.Text;
 /// tecnologia nenhuma e não pertence a camada alguma. Estar no compartilhado é o que permite
 /// que qualquer camada a use sem que a regra precise mudar de lugar antes.
 ///
-/// A diferença em relação ao <see cref="Time.UtcDateTime"/> é o número de consumidores: aquele
-/// é usado pela borda de HTTP e pela de persistência, que não se enxergam; este, por enquanto,
-/// só pela primeira. Foi decisão consciente colocá-lo aqui mesmo assim — ver o critério 4 no
-/// README, e o que o <c>SharedContentTests</c> deixou de verificar por causa dela.
+/// A diferença em relação ao <see cref="Time.UtcDateTime"/> é só o número de consumidores:
+/// aquele é usado pela borda de HTTP e pela de persistência; este, por enquanto, só pela
+/// primeira. Isso não muda o que ele é, e é por isso que ele está aqui.
 /// </remarks>
 public static class TextValue
 {

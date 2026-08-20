@@ -23,18 +23,17 @@ A solução é dividida nos seguintes projetos — os de produção em `src/`, o
 
 ### O que entra no `Todo.Shared`
 
-O `Todo.Shared` não é definido por um assunto — é definido por uma natureza: política de fronteira, sobre como interpretar um valor que chegou de fora. Por não ter um assunto que o delimite, é o projeto que mais corre risco de virar depósito: qualquer utilitário cabe lá se o critério for "é conveniente, e todo mundo alcança". Um tipo entra quando passa nos quatro:
+O `Todo.Shared` não é definido por um assunto — é definido por uma natureza: implementações auxiliares que não dependem de tecnologia nenhuma e que não fazem sentido dentro do domínio. Por não ter um assunto que o delimite, é o projeto que mais corre risco de virar depósito: qualquer utilitário cabe lá se o critério for "é conveniente, e todo mundo alcança". Um tipo entra quando passa nos três:
 
-1. Não é regra de negócio, não orquestra caso de uso e não é detalhe de um provider — é política de fronteira: como interpretar um valor que chegou de fora.
+1. Não é regra de negócio, não orquestra caso de uso e não é detalhe de um provider.
 2. Não precisa de pacote nenhum.
 3. Não precisa referenciar nenhum outro projeto da solução.
-4. É usado por pelo menos uma camada.
 
-O critério que decide é o 1, e ele é de julgamento. Os outros três são mecânicos e verificados por `Todo.Tests.Architecture` — o 2 em `TechnologyIsolationTests`, o 3 em `LayerDependencyTests` e o 4 em `SharedContentTests`. Cada assunto mora em sua própria pasta e namespace (`Time` e `Text`, hoje), de modo que o que não pertence ao projeto fique visível pelo lugar onde teve de ser posto.
+Os critérios 2 e 3 são mecânicos, verificados por `Todo.Tests.Architecture` — o 2 em `TechnologyIsolationTests`, o 3 em `LayerDependencyTests`. São necessários e não suficientes: barram o que traz tecnologia junto, e não o utilitário conveniente que alguém queira guardar aqui.
 
-O critério 4 já exigiu **duas** camadas que não se enxergam, e foi afrouxado de propósito. A razão: `UtcDateTime` e `TextValue` têm exatamente a mesma natureza — política de fronteira, sem tecnologia, útil a qualquer camada —, e separá-los porque um tem dois consumidores e o outro tem um seria classificar pelo uso de hoje em vez de pelo que a coisa é. Tipos assim moram aqui pelo que são.
+**O critério 1 é de julgamento, e não há teste que o substitua.** Já houve um, exigindo que o tipo fosse usado por duas camadas que não se enxergam, e ele foi removido: contar consumidores mede o uso de hoje, e o que qualifica um tipo aqui é a natureza dele. Um `UtcDateTime` que ainda não tivesse dois usuários não deixaria de ser política de fronteira por isso.
 
-O preço está registrado: com o limite em uma camada, o teste deixa de barrar o utilitário conveniente que alguém coloque aqui só porque todo mundo alcança o projeto — que era o risco original. O que ele ainda pega é tipo público que ninguém usa, ou seja, código morto. Daqui em diante, "não pertence a camada nenhuma" é decisão de revisão, e não mais barreira automática: antes de acrescentar algo, o critério 1 precisa ser respondido a sério.
+O que segura o projeto no lugar do teste é a organização: cada assunto mora em sua própria pasta e namespace (`Time` e `Text`, hoje). Quando não estiver claro em qual pasta uma coisa nova entra, é sinal de que ela provavelmente não pertence aqui.
 
 ### Normalização de fronteira
 
