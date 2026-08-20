@@ -23,16 +23,18 @@ A solução é dividida nos seguintes projetos — os de produção em `src/`, o
 
 ### O que entra no `Todo.Shared`
 
-O `Todo.Shared` é o único projeto definido pelo uso, e não por um assunto, e por isso é o que mais corre risco de virar depósito: qualquer utilitário cabe lá se o critério for "é conveniente, e todo mundo alcança". Um tipo entra quando passa nos quatro:
+O `Todo.Shared` não é definido por um assunto — é definido por uma natureza: política de fronteira, sobre como interpretar um valor que chegou de fora. Por não ter um assunto que o delimite, é o projeto que mais corre risco de virar depósito: qualquer utilitário cabe lá se o critério for "é conveniente, e todo mundo alcança". Um tipo entra quando passa nos quatro:
 
-1. Não é regra de negócio, não orquestra caso de uso e não é detalhe de um provider.
+1. Não é regra de negócio, não orquestra caso de uso e não é detalhe de um provider — é política de fronteira: como interpretar um valor que chegou de fora.
 2. Não precisa de pacote nenhum.
 3. Não precisa referenciar nenhum outro projeto da solução.
-4. É usado por pelo menos duas camadas que não se enxergam.
+4. É usado por pelo menos uma camada.
 
-E sai quando deixa de passar: um tipo que ficou com um consumidor só pertence à camada desse consumidor, e volta para lá.
+O critério que decide é o 1, e ele é de julgamento. Os outros três são mecânicos e verificados por `Todo.Tests.Architecture` — o 2 em `TechnologyIsolationTests`, o 3 em `LayerDependencyTests` e o 4 em `SharedContentTests`. Cada assunto mora em sua própria pasta e namespace (`Time`, hoje), de modo que o que não pertence ao projeto fique visível pelo lugar onde teve de ser posto.
 
-Os quatro são verificados por `Todo.Tests.Architecture` — os dois primeiros em `TechnologyIsolationTests`, o terceiro em `LayerDependencyTests` e o quarto em `SharedContentTests`. Cada assunto mora em sua própria pasta e namespace (`Time`, hoje), de modo que o que não pertence ao projeto fique visível pelo lugar onde teve de ser posto.
+O critério 4 já exigiu **duas** camadas que não se enxergam, e foi afrouxado de propósito: o que qualifica um tipo para este projeto é a natureza dele, e não o número de camadas que hoje o alcançam.
+
+O preço está registrado: com o limite em uma camada, o teste deixa de barrar o utilitário conveniente que alguém coloque aqui só porque todo mundo alcança o projeto — que era o risco original. O que ele ainda pega é tipo público que ninguém usa, ou seja, código morto. Daqui em diante, "não pertence a camada nenhuma" é decisão de revisão, e não mais barreira automática: antes de acrescentar algo, o critério 1 precisa ser respondido a sério.
 
 ### Padrão de Endpoints
 
