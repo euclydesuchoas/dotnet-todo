@@ -12,7 +12,7 @@ A solução é dividida nos seguintes projetos — os de produção em `src/`, o
 
 | Projeto | Responsabilidade |
 |---|---|
-| `Todo.Shared` | Política transversal que não pertence a nenhuma camada e é usada por bordas que não se enxergam — hoje, a normalização de datas para UTC. Não referencia nenhum outro projeto, e por isso pode ser referenciado por todos. |
+| `Todo.Shared` | Política transversal que não pertence a nenhuma camada — hoje, como interpretar uma data que chegou sem fuso (`Time`) e um texto que chegou em qualquer forma Unicode (`Text`). Não referencia nenhum outro projeto, e por isso pode ser referenciado por todos. |
 | `Todo.Domain` | Entidades e regras de domínio. |
 | `Todo.Application` | Casos de uso, validações (FluentValidation), abstrações de mensageria (`IRequest`, `IServiceHandler`) e de persistência (`ITodoItemRepository`, `IUnitOfWork`), e o padrão `Result` para tratamento de sucesso/falha. |
 | `Todo.Infrastructure` | Implementações de infraestrutura: contexto e mapeamentos do EF Core, repositórios, migrations e a escolha do banco. |
@@ -30,11 +30,30 @@ O `Todo.Shared` não é definido por um assunto — é definido por uma natureza
 3. Não precisa referenciar nenhum outro projeto da solução.
 4. É usado por pelo menos uma camada.
 
-O critério que decide é o 1, e ele é de julgamento. Os outros três são mecânicos e verificados por `Todo.Tests.Architecture` — o 2 em `TechnologyIsolationTests`, o 3 em `LayerDependencyTests` e o 4 em `SharedContentTests`. Cada assunto mora em sua própria pasta e namespace (`Time`, hoje), de modo que o que não pertence ao projeto fique visível pelo lugar onde teve de ser posto.
+O critério que decide é o 1, e ele é de julgamento. Os outros três são mecânicos e verificados por `Todo.Tests.Architecture` — o 2 em `TechnologyIsolationTests`, o 3 em `LayerDependencyTests` e o 4 em `SharedContentTests`. Cada assunto mora em sua própria pasta e namespace (`Time` e `Text`, hoje), de modo que o que não pertence ao projeto fique visível pelo lugar onde teve de ser posto.
 
-O critério 4 já exigiu **duas** camadas que não se enxergam, e foi afrouxado de propósito: o que qualifica um tipo para este projeto é a natureza dele, e não o número de camadas que hoje o alcançam.
+O critério 4 já exigiu **duas** camadas que não se enxergam, e foi afrouxado de propósito. A razão: `UtcDateTime` e `TextValue` têm exatamente a mesma natureza — política de fronteira, sem tecnologia, útil a qualquer camada —, e separá-los porque um tem dois consumidores e o outro tem um seria classificar pelo uso de hoje em vez de pelo que a coisa é. Tipos assim moram aqui pelo que são.
 
 O preço está registrado: com o limite em uma camada, o teste deixa de barrar o utilitário conveniente que alguém coloque aqui só porque todo mundo alcança o projeto — que era o risco original. O que ele ainda pega é tipo público que ninguém usa, ou seja, código morto. Daqui em diante, "não pertence a camada nenhuma" é decisão de revisão, e não mais barreira automática: antes de acrescentar algo, o critério 1 precisa ser respondido a sério.
+
+### Normalização de fronteira
+
+Duas coisas são normalizadas na entrada, e por um motivo comum: o valor que chega depende de quem o digitou, e o miolo da aplicação não deveria ter que saber disso. Quem normaliza são as portas, e só elas.
+
+| O quê | Regra | Onde é aplicada |
+|---|---|---|
+| Data sem fuso | Tratada como UTC, nunca como hora local (`UtcDateTime.Normalize`) | `UtcDateTimeJsonConverter` (corpo JSON), `UtcDateTimeEndpointFilter` (rota e query), `UtcDateTimeConverter` (mapeamento do EF) |
+| Forma Unicode e espaço nas pontas | Canonizado para NFC e aparado (`TextValue.Normalize`) | `TextValueJsonConverter` (corpo JSON), `TextValueEndpointFilter` (rota e query) |
+
+Canonizar resolve um defeito invisível: `café` escrito como `caf` + `U+00E9` ou como `cafe` + `U+0301` é o mesmo texto em duas codificações, renderizado igual e comparado diferente. Sem uma forma única, um título gravado de um jeito não é encontrado por uma busca escrita do outro, e ninguém consegue ver a diferença na tela para reportar o problema.
+
+Aparar resolve outro: sem isso `Comprar leite` e `  Comprar leite  ` viram duas linhas distintas e idênticas na tela, e um título no limite de tamanho é rejeitado por causa dos espaços.
+
+As duas coisas ficam concentradas nas portas, e não espalhadas pelos casos de uso, pela mesma razão das datas: o miolo recebe o valor pronto e não precisa lembrar de converter. Como a normalização acontece antes do vínculo do request, a validação de tamanho já mede o valor final.
+
+Aparar em bloco só é seguro porque nenhum campo desta API guarda espaço nas pontas como conteúdo. No dia em que entrar um — texto com formatação preservada, senha —, essa decisão deixa de poder ser tomada para toda string de uma vez, e passa a ser por campo. Canonizar continua valendo para todos: não descarta nada, só escolhe uma codificação.
+
+O que **não** é normalizado: caixa e acento na busca. `title.Contains(...)` é traduzido para `LIKE` no Postgres e no SQL Server e para `instr` no SQLite, e cada um decide sozinho se distingue maiúscula — o mesmo dado responde diferente conforme o provider. Tornar isso determinístico exige uma coluna própria com o texto dobrado e indexada, e está adiado até a busca ter requisito de verdade.
 
 ### Padrão de Endpoints
 

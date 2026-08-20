@@ -20,7 +20,10 @@ public static class DependencyInjection
         // Vale para os endpoints minimal API, que usam Microsoft.AspNetCore.Http.Json.JsonOptions —
         // e não a configuração do MVC.
         services.ConfigureHttpJsonOptions(options =>
-            options.SerializerOptions.Converters.Add(new UtcDateTimeJsonConverter()));
+        {
+            options.SerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
+            options.SerializerOptions.Converters.Add(new TextValueJsonConverter());
+        });
 
         // Add services to the container.
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
